@@ -1,102 +1,135 @@
 # MedPass LATAM
 
-> Hackathon prototype — not intended for clinical use. All demonstration records must be
-> synthetic and fictitious.
+**Pay the clinic in seconds. Share only what the doctor needs.**
 
-MedPass LATAM is a portable, patient-controlled medical passport concept for people moving
-between clinics, cities, and countries in Latin America. The intended MVP lets a patient present
-a QR code, approve a provider's time-limited request for selected medical context, complete an
-encounter, and pay the provider in USDC through Pollar.
+> Prototype built for the Pollar Bounty at Buildathon Cochabamba 2026. The payment is real — USDC
+> moves on Stellar through Pollar and every receipt links to a public explorer. **All medical
+> records are fictitious.** This is not a clinical system and it makes no medical claims.
 
-**Current status:** Phase 0 engineering foundation is complete and published at
-<https://github.com/BigSm0ker/medpass-latam>. Patient, provider, consent, data persistence, and
-payment features are not implemented yet.
+## The problem
 
-## Problem and proposed solution
+Across Latin America a great many consultations are still settled in cash. The neighbourhood clinic
+has no card terminal, the visiting patient has no local bank account, or the person actually paying
+is a relative in another country. Meanwhile the provider treats someone whose allergies, current
+medications and conditions they cannot see.
 
-Health context is often fragmented across organizations and borders. In an urgent or travel
-scenario, a patient may need to repeat critical facts while having little control over how much a
-provider can see. MedPass LATAM proposes one narrow, demonstrable path:
+Both halves of that are the same moment, and MedPass treats them as one: **a charge that carries
+consent**.
 
-`patient → passport → QR → provider request → explicit consent → scoped view → encounter → USDC payment → verifiable result`
+A provider creates a charge naming an amount and the specific health details this visit needs. The
+patient scans one QR code, sees exactly what is being asked before anything is disclosed, approves
+a subset, and pays in USDC. The provider gets the context they need; the patient keeps everything
+they did not agree to share.
 
-Private medical content remains in private application storage. Pollar adds user onboarding,
-wallet infrastructure, and a verifiable payment result directly connected to the encounter. The
-project will not force medical data onto a public blockchain.
+`provider charge → QR → patient reviews → patient approves a scope → provider sees only that → patient pays USDC → verifiable receipt`
 
-## Architecture
+## How we integrated Pollar
 
-The Next.js application is divided into presentation routes/components, feature-owned domain
-logic, server/API authorization, centralized Pollar and Supabase adapters, and privacy utilities.
-Raw SDK calls should not spread through UI components. See [Architecture](docs/ARCHITECTURE.md)
-and the [decision records](docs/decisions/).
+Pollar is used for two distinct things, and the second one is the part we would point at first.
 
-## Technology stack
+### 1. Payments — the obvious use
 
-- Node.js 20+ and npm 10+
-- Next.js App Router, React, strict TypeScript, Tailwind CSS
-- Pollar `@pollar/core` and `@pollar/react` (pinned, integration begins in Phase 1)
-- Supabase PostgreSQL direction (client installed, no project or schema configured)
-- Zod, React Hook Form, QRCode React, Lucide React
-- Vitest, Testing Library, and Playwright
-- GitHub Actions CI; Vercel planned for release
+`sendPayment()` moves USDC from the patient's wallet to the provider's, on Stellar. The payment
+adapter lives in `src/lib/pollar/` and nothing outside that directory touches the SDK directly.
 
-## Local setup
+Two details we were deliberate about:
+
+- **The USDC issuer is never hard-coded.** `refreshAssets()` returns the assets the application is
+  provisioned for on the active network, and we resolve the issuer from that catalog at runtime.
+  The TestNet and Mainnet issuers differ, so this makes switching networks a configuration change
+  rather than a code change.
+- **`pending` is kept distinct from `success`.** Pollar returns `pending` when the network has
+  accepted a transaction the ledger has not yet confirmed. A receipt that treated the two alike
+  would tell a patient their consultation was paid before it was.
+
+### 2. Identity — the use we think is more interesting
+
+The product needed server-enforced authorization: a request for a passport has to prove who is
+asking. The SDK exposes no server-side verification surface — no token introspection, no JWKS, no
+userinfo endpoint — and its access tokens are DPoP-bound to a key held in the browser, so a server
+cannot replay one to ask Pollar who the caller is.
+
+What it does expose is `client.stellar.sep53.signMessage()`. So we built authentication on it:
+
+1. The server issues a short-lived, HMAC-signed challenge.
+2. The browser signs it with the Pollar wallet (SEP-53: ed25519 over
+   `SHA-256("Stellar Signed Message:\n" + message)`).
+3. The server verifies that signature against the claimed Stellar address and issues an httpOnly
+   session cookie.
+
+The wallet is the user's identity, not just their payment method. Pollar handles onboarding for
+people who have never used a wallet — email or Google sign-in, custodial wallet, sponsored
+trustlines — and we get a cryptographically verifiable subject out of it. See
+[ADR-005](docs/decisions/ADR-005-server-session.md).
+
+### What we found in the SDK, honestly
+
+Offered in case it is useful to the Pollar team:
+
+- **A stray space in an asset code fails silently and confusingly.** A leading space made our USDC
+  register as `" USDC"` typed `credit_alphanum12`, which is a genuinely different asset from `USDC`
+  as `credit_alphanum4`. The dashboard flagged it `Invalid` but the blocking error surfaced
+  elsewhere as "wallets unfunded", so we chased the wrong thing first. Our adapter deliberately does
+  **not** trim this field — tolerating the space would build payments against an asset that merely
+  looks like USDC.
+- **The sponsored reserve does not cover transaction fees.** With Funding Mode's
+  `Starting XLM balance` at its `0` default, a freshly onboarded wallet exists on-chain, holds a
+  sponsored trustline, and still cannot pay — `sendPayment` fails with "Not enough XLM to cover the
+  network fee". The two costs are easy to conflate.
+- **`ORIGIN_NOT_ALLOWED` reaches the end user as "Check your connection and try again."** A 403
+  from `/applications/config` is a configuration problem, and presenting it as a network problem
+  sends developers looking at their wifi. The dashboard already knows the allowed origins; naming
+  the origin in that message would have saved us an hour.
+
+## Try it
+
+- **`/`** — what the product is.
+- **`/charge`** — the provider side: create a charge, show the QR, watch the authorized information
+  appear once the patient approves.
+- **`/passport`** — the patient side: sign in and fill in a synthetic passport.
+- **`/c/<token>`** — what scanning the QR opens.
+
+To see the whole flow, open `/charge` on one device and scan its QR with another. Signing in with
+two different accounts gives you the two roles.
+
+## Security posture
+
+- Medical content stays in private storage. The chain carries the payment and nothing else
+  ([ADR-003](docs/decisions/ADR-003-medical-data-storage.md)).
+- The QR carries a random opaque token — no health data, no patient identifier.
+- Disclosure is an allow-list projection, so a field added to the passport later cannot leak by
+  omission.
+- Caller identity comes only from a signed httpOnly cookie; an address in a request body is never
+  trusted. The passport API exposes no patient identifier at all, so an insecure direct object
+  reference is not expressible.
+- A database CHECK enforces that approved fields are a subset of requested ones, and another
+  refuses any record not marked synthetic.
+- Row Level Security is deny-by-default with zero policies for anonymous and authenticated roles.
+
+Attack attempts we ran against our own API — forged cookies naming the victim's real address,
+unsigned cookies, body-injected addresses, signatures over challenges the server never issued — are
+recorded with their results in [docs/TESTING.md](docs/TESTING.md).
+
+## Stack
+
+Next.js App Router, React 19, strict TypeScript, Tailwind CSS 4. Pollar `@pollar/core` and
+`@pollar/react` 0.11.3. Supabase PostgreSQL. Zod, `@stellar/stellar-base`, qrcode.react. Vitest and
+Playwright.
+
+## Running it locally
 
 ```bash
 npm ci
+cp .env.example .env.local   # then fill in the values
 npm run dev
 ```
 
-Open `http://localhost:3000`. Phase 0 does not require credentials.
+You will need a Pollar application with your dev origin in its allowed domains, a funded
+application wallet, USDC enabled as an asset, and a Supabase project with the migrations in
+`supabase/migrations/` applied. `docs/POLLAR_INTEGRATION.md` documents the setup order — each step
+blocks the next and skipping one produces a misleading error.
 
-Copy `.env.example` to `.env.local` only when a later phase needs external services. Never commit
-`.env.local`. `NEXT_PUBLIC_*` values may be bundled for browsers; `POLLAR_SECRET_KEY` and
-`SUPABASE_SERVICE_ROLE_KEY` are server-only. Variable names will be reconfirmed against the
-service dashboards before use.
+## Documentation
 
-## Branch workflow
-
-`feature/*` and `fix/*` branches target `develop`. Stable integration work is promoted by pull
-request from `develop` to production branch `main`. Do not work directly on `main`.
-
-## Validation
-
-```bash
-npm run lint
-npm run typecheck
-npm test
-npm run build
-npm run test:e2e
-npm run format:check
-```
-
-The default CI pipeline needs no Pollar or Supabase secrets. See [Testing](docs/TESTING.md).
-
-## Security and privacy
-
-- Synthetic medical data only; no real patient information.
-- No plaintext medical data on public blockchains.
-- Secrets remain server-side and out of Git.
-- Every request must be authenticated, authorized, validated, and minimally logged.
-- TestNet first. No Mainnet transaction or spending without explicit human approval.
-
-See [Security](docs/SECURITY.md) and [manual actions](docs/MANUAL_ACTIONS.md).
-
-## Bounty requirements
-
-The release target is a public repository, public test URL, real Pollar integration in the
-encounter payment flow, one approximately 1 USDC Mainnet transaction after explicit approval,
-and a demo no longer than three minutes. Evidence and rubric mapping live in
-[Bounty](docs/BOUNTY.md).
-
-## Roadmap
-
-1. Foundation — reproducible repository, docs, tests, CI, dependency and architecture baseline.
-2. Pollar spike — prove onboarding, wallet, balances, transaction, and history on TestNet.
-3. Medical passport — synthetic critical medical context.
-4. Consent — QR request and temporary scoped provider access.
-5. Encounter and payment — tie a confirmed Pollar USDC payment to the encounter.
-6. Release — polish, deploy, approved Mainnet proof, and concise demo.
-
-Detailed phase plans are under `docs/plans/`. Phase 1 must not begin without authorization.
+Engineering decisions, phase plans and evidence live in [`docs/`](docs/). Start with
+[STATUS.md](docs/STATUS.md).

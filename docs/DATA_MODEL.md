@@ -21,3 +21,16 @@ must optimize the demo and keep a future mapping possible.
 Every patient-owned row needs an ownership boundary; every access request and consent needs
 explicit scope, timestamps, expiry, and revocation state. Payments link to encounters through an
 internal identifier, while public transaction memo/metadata must not reveal medical information.
+
+## Implementation note — 2026-09-12
+
+Phase 3 implements `encounters` and `payments` but not a separate `consents` table. At this scope
+the relationship is strictly 1:1 — one charge, one approval — so consent lives on the encounter as
+`requested_fields`, `approved_fields`, `consent_expires_at` and `revoked_at`. A separate table would
+add a join and no expressiveness.
+
+A database CHECK enforces `approved_fields <@ requested_fields`, so a provider cannot hold a field
+the patient never saw requested, even if the application layer is wrong.
+
+`audit_events` is not implemented. It earns nothing against the published judging criteria and the
+state transitions it would record are already visible on the encounter.

@@ -90,6 +90,33 @@ in DO blocks and the file ends with a verification query.
 
 [HUMAN_REQUIRED]
 
+Task: Deploy to Vercel and add the production origin to Pollar
+Why: A public URL judges can try is bounty requirement 5 — a participation requirement, not polish.
+Importing a repository requires the owner's Vercel account authorization, which an agent must not
+perform.
+Exact action required: Follow `docs/DEPLOYMENT.md`. Import the repository, set the six environment
+variables (generating a NEW `SESSION_SECRET` for production — a leaked one lets anyone forge a
+session for any wallet), and then add the Vercel domain to the Pollar dashboard's allowed origins.
+That last step is the one that will otherwise cost an hour: the failure presents as "Could not load
+sign-in options. Check your connection", which is a 403 ORIGIN_NOT_ALLOWED, not a network fault.
+Cost: $0 on the free tier
+Risk: Review any pricing prompt and stop if a paid plan is required.
+Status: PENDING
+
+[HUMAN_REQUIRED]
+
+Task: Apply the Phase 3 Supabase migration
+Why: The charge-with-consent flow needs the `encounters` and `payments` tables, and this session has
+no network route to the Supabase project.
+Exact action required: Run `supabase/migrations/0002_encounters.sql` in the SQL editor. It is
+idempotent and ends with a verification query that should report four tables, RLS enabled on each,
+and zero policies.
+Cost: $0
+Risk: None. It creates objects only.
+Status: PENDING
+
+[HUMAN_REQUIRED]
+
 Task: Set a non-zero starting XLM balance for demo wallets
 Why: The sponsored base reserve does NOT cover transaction fees. With Funding Mode's
 `Starting XLM balance` at 0, a freshly onboarded wallet holds zero spendable XLM and the first
