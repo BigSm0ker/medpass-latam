@@ -10,7 +10,10 @@
   formatting pass; production bundle scanned and free of the server secret.
 - **Active:** Phase 1 acceptance requires a human to run the spike page in a browser against the
   owner's dashboard application and record the TestNet evidence.
-- **Blocked:** pushing `feature/pollar-spike` to GitHub — the Linux bridge this session works
+- **Blocked:** the Pollar dashboard does not allow the local dev origin. `GET /applications/config`
+  returns `403 ORIGIN_NOT_ALLOWED`, so the login modal cannot load sign-in options and Phase 1's
+  live verification cannot proceed until `http://localhost:3000` is allowlisted. Also blocked:
+  pushing `feature/pollar-spike` to GitHub — the Linux bridge this session works
   through has no GitHub credentials. See `docs/MANUAL_ACTIONS.md`.
 - **Repository:** <https://github.com/BigSm0ker/medpass-latam> is public; `develop` is the default
   collaboration branch and `main` is protected against direct changes, force-push, and deletion.

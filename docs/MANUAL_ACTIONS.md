@@ -27,6 +27,21 @@ Status: COMPLETED
 
 [HUMAN_REQUIRED]
 
+Task: Allow the local development origin in the Pollar dashboard
+Why: The SDK's first call, `GET /v2/applications/config`, is rejected with
+`403 {"code":"ORIGIN_NOT_ALLOWED"}`. The login modal therefore renders "Could not load sign-in
+options" and no authentication is possible. The publishable key, the network pin, and the client
+construction are all confirmed correct — the application simply does not list the dev origin.
+Exact action required: In the Pollar Dashboard, open this application's settings and add the
+allowed origins `http://localhost:3000` and `http://127.0.0.1:3000`. Add the public Vercel origin
+too when Phase 5 deploys. Then reload `/spike/pollar`; no code change or dev-server restart is
+needed.
+Cost: $0
+Risk: None. Do not widen the allowlist to a wildcard.
+Status: PENDING
+
+[HUMAN_REQUIRED]
+
 Task: Run the Phase 1 TestNet spike and record the evidence
 Why: The adapter and credential boundary are complete and validated, but an interactive Pollar
 login cannot be completed by an agent. Phase 1's acceptance gate needs a real TestNet run.
