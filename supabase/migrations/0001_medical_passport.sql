@@ -13,8 +13,18 @@
 create extension if not exists "pgcrypto";
 
 -- A Stellar ed25519 public key in strkey form: 56 chars, base32, leading G.
-create domain stellar_address as text
-  check (value ~ '^G[A-Z2-7]{55}$');
+--
+-- Postgres has no CREATE DOMAIN IF NOT EXISTS, so this is guarded explicitly.
+-- A migration that cannot be re-run is a migration that strands you halfway
+-- through on the first error.
+do $$
+begin
+  if not exists (select 1 from pg_type where typname = 'stellar_address') then
+    create domain stellar_address as text
+      check (value ~ '^G[A-Z2-7]{55}$');
+  end if;
+end
+$$;
 
 create table if not exists public.profiles (
   id              uuid primary key default gen_random_uuid(),
@@ -29,7 +39,14 @@ comment on table public.profiles is
   'Application identity linked to a Pollar-custodied Stellar address. Contains no health data.';
 
 -- Blood types are a closed set; anything else is a data-entry bug, not a variant.
-create type blood_type as enum ('A+','A-','B+','B-','AB+','AB-','O+','O-','unknown');
+-- Guarded for the same reason as the domain above.
+do $$
+begin
+  if not exists (select 1 from pg_type where typname = 'blood_type') then
+    create type blood_type as enum ('A+','A-','B+','B-','AB+','AB-','O+','O-','unknown');
+  end if;
+end
+$$;
 
 create table if not exists public.medical_profiles (
   id                      uuid primary key default gen_random_uuid(),
@@ -87,3 +104,16 @@ alter table public.medical_profiles  enable row level security;
 
 revoke all on public.profiles         from anon, authenticated;
 revoke all on public.medical_profiles from anon, authenticated;
+
+-- Verification. Re-running the whole file should end with both tables present,
+-- RLS enabled on each, and no policies granting anon or authenticated anything.
+select
+  c.relname                                                as table_name,
+  c.relrowsecurity                                         as rls_enabled,
+  (select count(*) from pg_policies p
+    where p.schemaname = 'public' and p.tablename = c.relname) as policy_count
+from pg_class c
+join pg_namespace n on n.oid = c.relnamespace
+where n.nspname = 'public'
+  and c.relname in ('profiles', 'medical_profiles')
+order by c.relname;

@@ -83,7 +83,10 @@ synthetic-only CHECK constraint, and enables deny-by-default RLS. Then add `SESS
 deployment environment (it is already generated in local `.env.local`).
 Cost: $0 on the free tier
 Risk: None. The migration creates objects only and drops nothing.
-Status: PENDING
+Status: COMPLETED 2026-09-12. Both tables exist with RLS enabled and zero policies, so anon and
+authenticated roles can read and write nothing. The migration was made idempotent after the first
+run failed on a re-run: Postgres has no CREATE DOMAIN/TYPE IF NOT EXISTS, so those are now guarded
+in DO blocks and the file ends with a verification query.
 
 [HUMAN_REQUIRED]
 
