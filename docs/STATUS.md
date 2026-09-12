@@ -10,12 +10,12 @@
   formatting pass; production bundle scanned and free of the server secret.
 - **Active:** Phase 1 acceptance requires a human to run the spike page in a browser against the
   owner's dashboard application and record the TestNet evidence.
-- **Blocked:** the Pollar application has no assets and no distribution rule. Authentication,
-  wallet creation and the pinned TestNet endpoint are all verified working, but `/wallet/assets`
-  returns only `XLM` with `enabledInApp: false`, `/distribution/rules` returns `[]`, and the
-  Stellar account therefore never gets funded (`exists: false`). USDC must be enabled and a
-  TestNet faucet rule created in the dashboard before the payment path can be proven. The earlier
-  `ORIGIN_NOT_ALLOWED` blocker is resolved — the Linux bridge this session works
+- **Blocked:** the Pollar application wallet is unfunded and USDC trustlines are not enabled.
+  Authentication, custodial wallet assignment and the pinned TestNet endpoint are verified working.
+  The app wallet pays ~2 XLM of base reserve per user wallet, so an unfunded app wallet means
+  `existsOnStellar: false`; and without trustlines the asset catalog returns only `XLM`. Both are
+  the two unchecked items in the dashboard setup checklist and are free to resolve on TestNet.
+  The earlier `ORIGIN_NOT_ALLOWED` blocker is resolved — the Linux bridge this session works
   through has no GitHub credentials. See `docs/MANUAL_ACTIONS.md`.
 - **Repository:** <https://github.com/BigSm0ker/medpass-latam> is public; `develop` is the default
   collaboration branch and `main` is protected against direct changes, force-push, and deletion.

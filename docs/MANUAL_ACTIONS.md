@@ -43,35 +43,31 @@ modal renders the application name plus email, Google and Wallet sign-in options
 
 [HUMAN_REQUIRED]
 
-Task: Enable USDC and configure a TestNet distribution rule in the Pollar dashboard
-Why: Authentication now works end to end, but the application has no assets and no faucet, so the
-payment path cannot be exercised at all. Observed live on 2026-09-12 with an authenticated,
-server-verified session:
+Task: Fund the app wallet and enable USDC trustlines in the Pollar dashboard
+Why: The dashboard setup checklist shows the two remaining required steps, and they map exactly to
+the two blockers observed live on 2026-09-12:
 
-GET /wallet/assets -> { chain: STELLAR, exists: false,
-assets: [ { type: native, code: XLM, enabledInApp: false } ] }
-GET /distribution/rules -> { rules: [] }
-GET /wallet/balance -> { exists: false, balances: [] }
+GET /wallet/assets -> assets: [ { code: XLM, enabledInApp: false } ] (no USDC)
+GET /distribution/rules -> rules: []
+GET /wallet/balance -> exists: false, balances: []
 
-All three returned HTTP 200. There is no error to fix in this repository: the application simply
-has no asset enabled (not even XLM) and no distribution rule defined. Without a USDC asset the
-adapter correctly reports "not enabled for this app"; without a rule there is no supported way to
-obtain test USDC from inside the application.
+The mechanism is app-wallet funding, not deferred funding waiting on an asset. Each user wallet
+costs roughly 2 XLM of Stellar base reserve, paid by the application's own wallet. That wallet is
+unfunded, so neither user wallet could be created — which is why `existsOnStellar` is false for
+both. Trustlines are the separate gate: without them a user wallet cannot hold USDC at all.
 
-The wallet's `exists: false` is a consequence, not a separate fault. Pollar uses deferred funding,
-so the Stellar account is created when the first asset arrives — which cannot happen until a
-faucet or another funding path exists.
+Exact action required: In the Pollar Dashboard for `medpass-web-testnet`, in this order:
 
-Exact action required: In the Pollar Dashboard, for this application on TestNet:
-
-1. Enable USDC as an application asset (and XLM, which currently shows `enabledInApp: false`).
-2. Create a distribution rule that pays test USDC to sdk-users, so `POST /distribution/claim`
-   has something to claim.
-3. If the dashboard offers no faucet rule, ask Pollar how a TestNet application is expected to
-   obtain USDC, and record the answer here.
-   Then reload `/spike/pollar`, press "Refresh assets", and a USDC issuer should appear.
-   Cost: $0 (TestNet)
-   Risk: None financial. Do not enable Mainnet assets while doing this.
+1. "Fund app wallet" — open it, copy the application wallet address, and fund it with TestNet
+   XLM (free via Friendbot: https://friendbot.stellar.org/?addr=<APP_WALLET_ADDRESS>).
+   Roughly 10 XLM covers about five user wallets.
+2. "Enable trustlines" — enable USDC so user wallets can hold it.
+   Order matters: a trustline can only be set on an account that already exists, and accounts only
+   exist once the app wallet pays their reserve.
+   Then reload `/spike/pollar`, press "Refresh assets" and "Refresh balance"; a USDC issuer should
+   resolve and `Exists on Stellar` should turn true.
+   Cost: $0 on TestNet (Friendbot XLM is free)
+   Risk: None on TestNet. Do not fund a Mainnet wallet while doing this.
    Status: PENDING
 
 [HUMAN_REQUIRED]
@@ -100,15 +96,20 @@ Status: PENDING
 
 [HUMAN_REQUIRED]
 
-Task: Confirm Pollar Mainnet approval and account-reserve sponsorship before Phase 5
+Task: Fund the Mainnet app wallet and approve the final transaction before Phase 5
 Why: The bounty requires a real Mainnet transaction, while approval and any Stellar reserve/funding
 responsibility are unresolved.
-Exact action required: Obtain written confirmation from Pollar about Mainnet access and whether
-hackathon wallet reserves/funding are sponsored. Record the answer without credentials. Approve
-the approximately 1 USDC transaction only at execution time after reviewing destination and cost.
-Cost: Unknown reserve/funding requirement; eventual transaction approximately 1 USDC
-Risk: Irreversible financial transfer and possible additional account funding requirement
-Status: PENDING
+Exact action required: A Pollar admin confirmed on 2026-09-12 that reserves are NOT sponsored:
+"in this case the teams should fund the app wallet themselves", adding that they can send XLM if
+the team has trouble. Mainnet access was requested and is awaiting approval. Therefore, before the
+release proof: fund the Mainnet application wallet with real XLM, confirm Mainnet access was
+granted, and approve the transaction only at execution time after reviewing destination and cost.
+Cost: Real XLM for the app wallet plus ~2 XLM of base reserve per participating user wallet
+(budget roughly 10-15 XLM), plus the approximately 1 USDC transaction itself. The bounty's
+"1 USDC transaction" is therefore NOT the full cost.
+Risk: Irreversible financial transfer; the reserve requirement is a real additional cost that was
+previously unquantified
+Status: PENDING — Mainnet access requested; reserve responsibility now confirmed as the team's
 
 [HUMAN_REQUIRED]
 
