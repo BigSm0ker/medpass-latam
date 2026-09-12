@@ -128,3 +128,29 @@ line of defense behind the pinned config.
   complete an interactive login on its own.
 - Distribution rules and enabled assets both depend on dashboard configuration this repository
   does not control.
+
+## Live TestNet observations — 2026-09-12
+
+Recorded from an authenticated, server-verified session against the owner's dashboard application.
+
+| Observation             | Value                                                   |
+| ----------------------- | ------------------------------------------------------- |
+| Auth methods offered    | email, Google, Wallet                                   |
+| `isAuthenticated`       | `true`                                                  |
+| `verified`              | `true`                                                  |
+| Wallet custody          | `internal` (platform-custodied)                         |
+| Network reported by SDK | `testnet`                                               |
+| `existsOnStellar`       | `false` — deferred funding; no asset has reached it yet |
+| Enabled assets          | `XLM` only, with `enabledInApp: false`; **no USDC**     |
+| Distribution rules      | `[]` — no faucet configured                             |
+| Balances                | `[]`                                                    |
+| Transaction hash        | not yet obtained — blocked by the two rows above        |
+
+Confirmed working: origin allowlisting, application config fetch, hosted login modal, session
+verification, custodial wallet creation, and the pinned TestNet endpoint. The adapter's
+"not enabled for this app" message is correct behaviour reporting a real configuration gap, not a
+defect.
+
+Confirmed blocked: asset catalog and TestNet funding. Both are dashboard configuration and are
+tracked in `docs/MANUAL_ACTIONS.md`. A payment cannot be built until a USDC issuer resolves, and
+the wallet cannot hold USDC until the Stellar account exists and carries a trustline.
