@@ -15,12 +15,25 @@ When schedule slips, cut P3 then P2. Protect the single P0 path:
 
 ## Sequence and gates
 
-1. **Phase 0 — Foundation:** reproducible repository, safe architecture, tests, CI, docs.
-2. **Phase 1 — Pollar spike:** prove the highest-risk TestNet integration immediately.
-3. **Phase 2 — Medical passport:** smallest credible synthetic patient profile.
-4. **Phase 3 — Consent:** QR-driven, scoped and temporary provider access.
-5. **Phase 4 — Encounter/payment:** associate confirmed Pollar payment with encounter.
-6. **Phase 5 — Release:** responsive polish, public deploy, approved Mainnet proof, demo.
+1. **Phase 0 — Foundation:** reproducible repository, safe architecture, tests, CI, docs. DONE.
+2. **Phase 1 — Pollar spike:** prove the highest-risk TestNet integration immediately. DONE.
+3. **Phase 2 — Medical passport:** smallest credible synthetic patient profile. DONE.
+4. **Phase 3 — Charge with consent:** one QR-driven flow where the provider requests fields and an
+   amount, the patient approves scope and pays through Pollar. _Revised 2026-09-12: this absorbs
+   the former Phase 4 payment work._
+5. **Phase 4 — Qualification:** public URL, Mainnet runbook, Mainnet transaction, demo. _Revised:
+   these are the bounty's hard requirements, and none of them is a feature._
+6. **Phase 5 — Submission:** README, 300-word description, demo video, Telegram delivery.
+
+## Revision note — 2026-09-12
+
+The original sequence treated deployment and the Mainnet proof as a final polish phase. The
+official bounty PDF makes them participation requirements: without a public URL, a Mainnet hash and
+a demo, a submission does not qualify regardless of quality. The Mainnet access request is still
+"under review" with a stated 2-business-day turnaround that lands after the deadline.
+
+So the order of defence changed. Protect qualification first, then depth. If time runs short, cut
+scope inside Phase 3 — never cut Phase 4.
 
 Do not begin a later phase until the current acceptance gate passes or the owner explicitly
 authorizes an exception. Each phase updates `docs/STATUS.md` and records human-only actions.
