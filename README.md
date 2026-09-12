@@ -8,8 +8,9 @@ between clinics, cities, and countries in Latin America. The intended MVP lets a
 a QR code, approve a provider's time-limited request for selected medical context, complete an
 encounter, and pay the provider in USDC through Pollar.
 
-**Current status:** Phase 0 engineering foundation is complete locally. Patient, provider,
-consent, data persistence, and payment features are not implemented yet.
+**Current status:** Phase 0 engineering foundation is complete and published at
+<https://github.com/BigSm0ker/medpass-latam>. Patient, provider, consent, data persistence, and
+payment features are not implemented yet.
 
 ## Problem and proposed solution
 
