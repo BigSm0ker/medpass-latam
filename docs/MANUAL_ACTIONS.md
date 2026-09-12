@@ -2,19 +2,16 @@
 
 Keep unresolved actions as `PENDING`. Never paste secret keys into chat or commit them.
 
-[HUMAN_REQUIRED]
+[COMPLETED]
 
-Task: Authenticate GitHub CLI, then publish the repository
-Why: Portable GitHub CLI 2.100.0 is installed under the ignored `.tools/` directory, but
-`gh auth status` confirms no GitHub host is authenticated. Phase 0 therefore cannot create the
-required public repository or configure its branches/settings automatically.
-Exact action required: From a private terminal in this workspace, run
-`.\.tools\bin\gh.exe auth login` and complete the browser/device flow. Then authorize an agent to
-create public repository `medpass-latam`, push `main` and `develop`, and set `develop` as the
-collaboration default. Do not paste a token into chat.
+Task: Authenticate GitHub CLI and publish the repository
+Why: Phase 0 required a public repository and remote branch workflow.
+Exact action required: Completed. GitHub CLI is authenticated as `BigSm0ker`; public repository
+<https://github.com/BigSm0ker/medpass-latam> contains `main` and `develop`; `develop` is the default
+branch and `main` has lightweight protection.
 Cost: $0
 Risk: Selecting the wrong GitHub account or accidentally exposing an authentication token
-Status: PENDING
+Status: COMPLETED
 
 [HUMAN_REQUIRED]
 

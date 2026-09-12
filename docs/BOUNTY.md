@@ -37,7 +37,7 @@ evidence. No Phase 0 transaction is allowed.
 
 - [x] Public-repository-ready code and documentation
 - [x] Reproducible local toolchain and secret-free CI
-- [ ] Public GitHub repository (blocked until GitHub CLI OAuth authorization is completed)
+- [x] Public GitHub repository: <https://github.com/BigSm0ker/medpass-latam>
 - [ ] Public Vercel URL
 - [ ] Pollar integration in a real flow
 - [ ] Mainnet access confirmed
