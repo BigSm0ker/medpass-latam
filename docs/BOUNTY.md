@@ -1,6 +1,47 @@
 # Bounty engineering checklist
 
+Source: official `Bounty Pollar — Buildathon Cochabamba 2026` PDF, read 2026-09-12.
 Working submission deadline: **2026-09-13 23:59 America/La_Paz**.
+
+## Prize and framing
+
+200 USDC total: **120 first place, 80 second**. Paid in USDC to a Vaquita account on closing day.
+If only one team qualifies it takes 120; if none qualifies, nothing is awarded. Only two places
+exist, so "qualifying" and "placing" are different bars.
+
+What they ask for, verbatim: _"Una aplicación real que resuelva un problema del día a día en
+Bolivia o Latinoamérica, con Pollar como motor de pagos y funcionando en mainnet."_ Their example
+ideas are all commerce and money movement — shop and restaurant payments, freelancer invoicing,
+remittances between cities or countries, group savings/pasanakus, and paying bills, tuition or
+rent.
+
+**Consequence for MedPass, stated plainly:** the brief is payments-first, and MedPass is
+consent-first with a payment at the end. That is a positioning risk against both Impact (30%) and
+Pollar integration (25%), not a disqualification. The submission must lead with the payment problem
+— paying a clinic that takes no cards, or paying from another country — and present the consent
+layer as what makes that payment trustworthy, not the other way round.
+
+Gambling, casinos, trading, speculation and memecoins are excluded. MedPass is unaffected.
+
+## Hard participation requirements
+
+1. Mainnet access form submitted (required before any Mainnet work is possible).
+2. Pollar integrated in at least one real flow — wallet, charge, payment or ramp.
+3. One real Mainnet transaction through Pollar. **1 USDC is enough.**
+4. Public repository with a README explaining how Pollar was integrated.
+5. Public URL the judges can try.
+6. Demo of at most 3 minutes, live or recorded.
+
+## Submission, via the bounty Telegram group before closing
+
+- [ ] Project name, team and members
+- [ ] Description of at most **300 words**
+- [ ] Repository link, public URL, and demo video (or notice of a live demo)
+- [ ] **Mainnet transaction hash**
+- [ ] **Vaquita account to receive the prize**
+
+The Pollar team is online in the Telegram group all three days and explicitly invites early
+questions.
 
 ## Impact — 30%
 
