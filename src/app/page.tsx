@@ -1,69 +1,82 @@
-import Image from "next/image";
+import { ArrowRight, CheckCircle2, ShieldCheck, WalletCards } from "lucide-react";
+import { PrototypeNotice } from "@/components/prototype-notice";
+
+const flow = ["Medical passport", "QR request", "Patient consent", "USDC payment"];
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
+    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,#d9fbef_0,transparent_32%),linear-gradient(135deg,#f8fffc_0%,#eef8ff_100%)] px-6 py-8 text-slate-950 sm:px-10 lg:px-16">
+      <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-6xl flex-col">
+        <header className="flex flex-wrap items-center justify-between gap-4">
           <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            className="text-xl font-bold tracking-tight"
+            href="#top"
+            aria-label="MedPass LATAM home"
           >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
+            MedPass <span className="text-emerald-700">LATAM</span>
           </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+          <PrototypeNotice />
+        </header>
+
+        <section
+          id="top"
+          className="grid flex-1 items-center gap-12 py-20 lg:grid-cols-[1.15fr_0.85fr]"
+        >
+          <div>
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white/70 px-3 py-1.5 text-sm font-semibold text-emerald-800 shadow-sm">
+              <CheckCircle2 aria-hidden="true" className="h-4 w-4" />
+              Foundation ready
+            </div>
+            <h1 className="max-w-3xl text-5xl leading-[1.05] font-semibold tracking-[-0.04em] sm:text-6xl lg:text-7xl">
+              Your health context, carried with consent.
+            </h1>
+            <p className="mt-7 max-w-2xl text-lg leading-8 text-slate-600 sm:text-xl">
+              MedPass LATAM is being built as a portable, patient-controlled bridge
+              between healthcare encounters across Latin America—with private data
+              off-chain and payments powered by Pollar.
+            </p>
+            <div className="mt-9 flex flex-wrap items-center gap-4">
+              <span className="inline-flex items-center gap-2 rounded-xl bg-slate-950 px-5 py-3 font-semibold text-white shadow-lg shadow-slate-900/15">
+                Phase 0 complete <ArrowRight aria-hidden="true" className="h-4 w-4" />
+              </span>
+              <span className="text-sm text-slate-500">
+                Product flows begin in Phase 1.
+              </span>
+            </div>
+          </div>
+
+          <aside className="rounded-[2rem] border border-white/80 bg-white/75 p-7 shadow-2xl shadow-emerald-950/10 backdrop-blur sm:p-9">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold tracking-[0.18em] text-emerald-700 uppercase">
+                  Demo path
+                </p>
+                <h2 className="mt-2 text-2xl font-semibold">One complete story</h2>
+              </div>
+              <div className="rounded-2xl bg-emerald-100 p-3 text-emerald-800">
+                <ShieldCheck aria-hidden="true" className="h-6 w-6" />
+              </div>
+            </div>
+            <ol className="mt-8 space-y-3">
+              {flow.map((step, index) => (
+                <li
+                  key={step}
+                  className="flex items-center gap-4 rounded-2xl border border-slate-200/80 bg-white px-4 py-3"
+                >
+                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-slate-950 text-sm font-bold text-white">
+                    {index + 1}
+                  </span>
+                  <span className="font-medium">{step}</span>
+                </li>
+              ))}
+            </ol>
+            <div className="mt-6 flex items-center gap-3 rounded-2xl bg-sky-50 p-4 text-sm leading-6 text-sky-950">
+              <WalletCards aria-hidden="true" className="h-5 w-5 shrink-0" />
+              TestNet first. Mainnet only after explicit human approval.
+            </div>
+          </aside>
+        </section>
+      </div>
+    </main>
   );
 }
