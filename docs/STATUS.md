@@ -1,7 +1,7 @@
 # Project status
 
 - **Current phase:** Phase 0 — Foundation (local acceptance passed; publication blocked)
-- **Current branch:** `main`
+- **Current branch:** `develop` (integration; `main` is the production branch)
 - **Completed:** Next.js/TypeScript/Tailwind scaffold; exact dependency baseline; architecture,
   security, ADRs and phase plans; agent workflow; Vitest/Testing Library/Playwright; CI definition;
   Pollar 0.11.3 research/import boundary; clean `npm ci`; lint, typecheck, unit tests, production
