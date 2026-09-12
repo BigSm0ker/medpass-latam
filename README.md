@@ -118,16 +118,46 @@ Playwright.
 
 ## Running it locally
 
+Use **npm 11** (`npm install -g npm@11.19.1`). npm 10 and npm 11 resolve this manifest into
+different trees, and a lockfile written by npm 10 fails `npm ci` under npm 11.
+
 ```bash
 npm ci
-cp .env.example .env.local   # then fill in the values
+cp .env.example .env.local
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"   # SESSION_SECRET
 npm run dev
 ```
 
-You will need a Pollar application with your dev origin in its allowed domains, a funded
-application wallet, USDC enabled as an asset, and a Supabase project with the migrations in
-`supabase/migrations/` applied. `docs/POLLAR_INTEGRATION.md` documents the setup order — each step
-blocks the next and skipping one produces a misleading error.
+Fill in `.env.local` with your Pollar and Supabase values plus that generated `SESSION_SECRET`. The
+application validates all of them at startup and refuses to run with a session secret shorter than
+32 characters — it signs session cookies, so a weak one lets anyone forge a session for any wallet.
+
+You will also need a Pollar application with your dev origin in its allowed domains, a funded
+application wallet, USDC enabled as an asset with a **non-zero** `Starting XLM balance`, and a
+Supabase project with both migrations in `supabase/migrations/` applied.
+`docs/POLLAR_INTEGRATION.md` documents the setup order — each step blocks the next, and skipping one
+produces a misleading error.
+
+## Deploying
+
+Full procedure in **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**. In short:
+
+1. Import the repository into Vercel. The Next.js preset needs no changes.
+2. Set the six environment variables from `.env.example`, generating a **new** `SESSION_SECRET` for
+   production rather than reusing the local one.
+3. Apply both migrations in the Supabase SQL editor. They are idempotent and the second ends with a
+   verification query.
+4. **Add the deployed domain to the Pollar dashboard's allowed origins.** Skipping this is the
+   single most likely way to lose an hour: sign-in fails with _"Could not load sign-in options.
+   Check your connection and try again"_, which looks like a network fault but is a
+   `403 ORIGIN_NOT_ALLOWED` from `/applications/config`.
+
+Then smoke-test in a private window: the landing page, the sign-in modal, `/passport`, `/charge`,
+and scanning its QR on a phone. `/spike/pollar` should return 404 in production.
+
+Switching to Mainnet is a separate, deliberate step with its own procedure and cost — see
+**[docs/MAINNET_RUNBOOK.md](docs/MAINNET_RUNBOOK.md)**. The network is pinned as a constant rather
+than an environment variable so no deployment can move real money by accident.
 
 ## Documentation
 
