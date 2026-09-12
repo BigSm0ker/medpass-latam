@@ -1,6 +1,6 @@
 # Project status
 
-- **Current phase:** Phase 2 — Medical Passport (code complete; awaiting Supabase migration)
+- **Current phase:** Phase 2 — Medical Passport (COMPLETE; acceptance gate passed)
 - **Current branch:** `feature/medical-passport` (from `develop`; `main` is the production branch)
 - **Completed:** Phase 0 foundation. Phase 1: verified the real `0.11.3` API surface from installed
   declarations; typed client/server environment boundary with a browser-import guard; centralized
@@ -13,11 +13,11 @@
   schema, service and API routes authorized solely from the session; patient passport UI with
   sign-in gate and loading/empty/error states; Supabase migration with deny-by-default RLS.
   61 unit tests, lint, typecheck, build and formatting pass; the production bundle carries none of
-  the three server secrets.
-- **Blocked:** the Supabase migration has not been applied — this session has no network route to
-  the project, so the owner must run `supabase/migrations/0001_medical_passport.sql` in the SQL
-  editor before the passport can persist. Mainnet remains gated on access approval and explicit
-  human approval at execution time.
+  the three server secrets. Verified live: a wallet signature creates a session, a synthetic
+  passport persists to Supabase, and forged cookies, absent cookies and body-injected addresses are
+  all refused. See `docs/TESTING.md`.
+- **Blocked:** none for Phase 2. Mainnet remains gated on access approval and explicit human
+  approval at execution time.
 
 - **Repository:** <https://github.com/BigSm0ker/medpass-latam> is public; `develop` is the default
   collaboration branch and `main` is protected against direct changes, force-push, and deletion.
@@ -27,8 +27,7 @@
 - **Known risks:** deadline is 2026-09-13 23:59 America/La_Paz; demo wallets start with zero
   spendable XLM and cannot pay network fees until the dashboard sets a non-zero starting balance;
   Mainnet access approval is still pending and reserves are the team's own cost.
-- **Next recommended task:** apply the Supabase migration, verify the passport end to end at
-  `/passport`, then authorize **Phase 3 — Consent and provider access**.
+- **Next recommended task:** authorize **Phase 3 — Consent and provider access**.
 
 ## Phase 1 verification — PASSED 2026-09-12
 
