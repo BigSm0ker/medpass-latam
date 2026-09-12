@@ -10,6 +10,13 @@ import { z } from "zod";
  */
 const serverEnvSchema = z.object({
   POLLAR_SECRET_KEY: z.string().min(1, "POLLAR_SECRET_KEY is required"),
+  SUPABASE_URL: z.string().url("SUPABASE_URL must be a URL"),
+  SUPABASE_SECRET_KEY: z.string().min(1, "SUPABASE_SECRET_KEY is required"),
+  /**
+   * Signs session cookies. Without it, a forged cookie would be indistinguishable
+   * from a real one, so a missing value is a hard failure rather than a default.
+   */
+  SESSION_SECRET: z.string().min(32, "SESSION_SECRET must be at least 32 characters"),
 });
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>;
@@ -36,6 +43,9 @@ export function getServerEnv(): ServerEnv {
 
   const parsed = serverEnvSchema.safeParse({
     POLLAR_SECRET_KEY: process.env.POLLAR_SECRET_KEY,
+    SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    SUPABASE_SECRET_KEY: process.env.SUPABASE_SECRET_KEY,
+    SESSION_SECRET: process.env.SESSION_SECRET,
   });
 
   if (!parsed.success) {

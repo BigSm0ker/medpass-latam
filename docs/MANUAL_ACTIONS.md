@@ -72,6 +72,21 @@ Exact action required: In the Pollar Dashboard for `medpass-web-testnet`, in thi
 
 [HUMAN_REQUIRED]
 
+Task: Apply the Phase 2 Supabase migration
+Why: The passport cannot persist until the schema exists, and this session has no network route to
+the Supabase project — requests from the agent's shells time out, so the migration cannot be
+applied or verified from here.
+Exact action required: Open the Supabase project's SQL editor and run
+`supabase/migrations/0001_medical_passport.sql` in full. It creates `profiles` and
+`medical_profiles`, a `stellar_address` domain, a `blood_type` enum, updated_at triggers, a
+synthetic-only CHECK constraint, and enables deny-by-default RLS. Then add `SESSION_SECRET` to any
+deployment environment (it is already generated in local `.env.local`).
+Cost: $0 on the free tier
+Risk: None. The migration creates objects only and drops nothing.
+Status: PENDING
+
+[HUMAN_REQUIRED]
+
 Task: Set a non-zero starting XLM balance for demo wallets
 Why: The sponsored base reserve does NOT cover transaction fees. With Funding Mode's
 `Starting XLM balance` at 0, a freshly onboarded wallet holds zero spendable XLM and the first
