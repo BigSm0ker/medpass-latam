@@ -32,8 +32,13 @@ Budget roughly 10–15 XLM in the application wallet plus 1–2 USDC.
 
 ## Step 1 — Fund the Mainnet application wallet
 
-In the Pollar dashboard, switch the network toggle to **MainNet**. The funding wallet address there
-is **different from the TestNet one**; sending to the TestNet address loses the funds.
+**There is no Mainnet funding wallet until access is granted.** Confirmed 2026-09-12: with the
+request still "Under review", switching the dashboard toggle to **MainNet** opens the review status
+modal instead of the Mainnet dashboard. So the address cannot be obtained, and cannot be given to
+anyone offering to send XLM, before approval. Ask for approval first; send the address second.
+
+Once access is granted, switch the toggle to **MainNet**. The funding wallet address there is
+**different from the TestNet one**; sending to the TestNet address loses the funds.
 
 - [ ] Copied the MainNet funding wallet public key
 - [ ] Funded it with XLM (Friendbot does not exist on Mainnet)
