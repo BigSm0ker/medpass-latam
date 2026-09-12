@@ -113,9 +113,11 @@ line of defense behind the pinned config.
    C-address), or `external`. Custody is fixed at account creation. KYC helpers exist
    (`getKycStatus`, `startKyc`) but are **not** exercised — no agent performs KYC.
 4. **TestNet USDC flow.** Resolved above via distribution rules plus `sendPayment`.
-5. **Reserve/funding sponsorship.** `EnabledAssetRecord.sponsored` and `setTrustline`'s
-   server-side sponsorship decision indicate the application may cover the trustline reserve on
-   TestNet. Mainnet sponsorship remains unconfirmed and is still a `[HUMAN_REQUIRED]` item.
+5. **Reserve/funding sponsorship — resolved.** Not sponsored. A Pollar admin confirmed on
+   2026-09-12 that "the teams should fund the app wallet themselves", offering to send XLM if the
+   team has trouble. The application's own wallet pays roughly 2 XLM of Stellar base reserve per
+   user wallet it creates. On TestNet this is free via Friendbot; on Mainnet it is a real cost that
+   must be budgeted on top of the bounty's ~1 USDC transaction.
 6. **Mainnet deltas.** Switching requires: `MEDPASS_STELLAR_NETWORK` changed to `mainnet`, a
    Mainnet-enabled dashboard application and publishable key, a Mainnet USDC issuer present in the
    enabled-assets catalog, a funded account meeting the Stellar base reserve, and explicit human
@@ -154,3 +156,21 @@ defect.
 Confirmed blocked: asset catalog and TestNet funding. Both are dashboard configuration and are
 tracked in `docs/MANUAL_ACTIONS.md`. A payment cannot be built until a USDC issuer resolves, and
 the wallet cannot hold USDC until the Stellar account exists and carries a trustline.
+
+## Funding model — corrected 2026-09-12
+
+An earlier reading of the Phase 0 notes assumed distribution rules were the primary way a wallet
+gets its first assets. The dashboard setup checklist corrects this.
+
+The application holds its own wallet, and that wallet pays the Stellar base reserve — about 2 XLM —
+for every user wallet it creates. An unfunded app wallet therefore cannot create user wallets at
+all, which is exactly what `existsOnStellar: false` reports. Distribution rules are a separate,
+optional faucet feature layered on top; they are not what activates an account.
+
+Trustlines are an independent gate. A user wallet holds XLM by default and nothing else; holding
+USDC requires the application to enable trustlines and the wallet to establish one. This is why the
+enabled-asset catalog returned only XLM.
+
+Practical consequence for Phase 5: the Mainnet proof requires real XLM in the application wallet
+before any USDC can move, so the transaction cost is the reserve plus the payment, not the payment
+alone.
