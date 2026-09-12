@@ -174,3 +174,68 @@ enabled-asset catalog returned only XLM.
 Practical consequence for Phase 5: the Mainnet proof requires real XLM in the application wallet
 before any USDC can move, so the transaction cost is the reserve plus the payment, not the payment
 alone.
+
+## Phase 1 acceptance evidence — TestNet payment confirmed 2026-09-12
+
+The critical path is proven end to end. Every value below was read back from Horizon, not from
+the application's own UI.
+
+| Item                  | Value                                                                                                         |
+| --------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Transaction hash      | `5ce00279e8883b8e59a361e592a1c9c7de2dac717b7b14bf1212a60bf8e0f3f6`                                            |
+| Ledger                | 4633398                                                                                                       |
+| Result                | `successful: true` — SDK returned `SubmitOutcome.status: "success"`                                           |
+| Amount / asset        | 1.0000000 USDC                                                                                                |
+| USDC issuer (TestNet) | `GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5`                                                    |
+| From (patient)        | `GD2IOJAIUM6VBYHXXOXP3OMG7XPPH3MR2SQOAM6JKTTEHHDIEYEXG7P4`                                                    |
+| To (provider)         | `GBXRPE4IWADDFKWRHQWMGXK3H7OE5JFM5AKS5SB4IMV2DCM4ULOUWM73`                                                    |
+| Fee charged           | 100 stroops (0.00001 XLM), paid by the sending wallet                                                         |
+| Wallet custody        | `internal` (platform-custodied)                                                                               |
+| Balances after        | payer 19 USDC, receiver 1 USDC                                                                                |
+| Explorer              | <https://stellar.expert/explorer/testnet/tx/5ce00279e8883b8e59a361e592a1c9c7de2dac717b7b14bf1212a60bf8e0f3f6> |
+
+`sendPayment` returned `success` directly rather than `pending`, so for this application a
+confirmed receipt is available immediately. Phase 4 must still handle `pending`, since the SDK
+types allow it and network conditions can produce it.
+
+## Setup sequence that actually works
+
+Discovered empirically; each step blocks the next, and skipping one produces a misleading error.
+
+1. **Allowed origins** — without the dev origin, `/applications/config` returns
+   `403 ORIGIN_NOT_ALLOWED` and the login modal reports "Could not load sign-in options", which
+   reads like a network fault but is not.
+2. **Fund the application wallet** — it pays roughly 1 XLM of sponsored base reserve per user
+   wallet. Unfunded, no user wallet is created and `existsOnStellar` stays false.
+3. **Register the asset exactly** — the asset code is part of the asset's on-chain identity.
+   A stray leading space produced code `" USDC"` typed as `credit_alphanum12`, which the dashboard
+   flagged `Invalid` and which correctly failed to match the real `USDC` `credit_alphanum4` asset.
+   Never trim or normalize this client-side: a tolerated space would build payments against a
+   different asset that merely looks like USDC.
+4. **Log in again** — funding and token changes apply to existing accounts only on next login.
+5. **Establish the trustline** — sponsored by the application when configured, so the user pays
+   nothing.
+6. **Obtain test USDC** — Circle's faucet at <https://faucet.circle.com> (select USDC + Stellar
+   Testnet) delivers 20 USDC, limited to one request per asset/network every 2 hours. This
+   application has no distribution rules; that faucet feature is optional and unused.
+7. **Fund the user wallet with XLM** — **the sponsored reserve does not cover transaction fees.**
+   With `Starting XLM balance: 0` the wallet holds zero spendable XLM and `sendPayment` fails with
+   "Not enough XLM to cover the network fee". Fixed here via Friendbot; the durable fix is a
+   non-zero starting balance in the dashboard's Funding Mode.
+
+## Mainnet deltas
+
+Beyond the network pin and a Mainnet-enabled key: the USDC issuer is different and must be
+registered separately; Friendbot does not exist, so both the application wallet and every user
+wallet need real XLM; and per the Pollar admin, reserves are not sponsored for teams. Budget real
+XLM for reserves and fees on top of the ~1 USDC transaction.
+
+## Known limitations
+
+- `GET /wallet/balance` intermittently answers `{"chain":"STELLAR","error":"unreadable"}` while
+  Horizon returns the balances correctly, so the UI shows a dash for held/spendable USDC. Transient
+  and upstream; the payment path is unaffected.
+- `existsOnStellar` continued to report `false` in the SDK's wallet object after the account was
+  demonstrably created on-chain. Do not gate product logic on that flag; read balances or assets.
+- The dashboard's `Invalid` badge is advisory. The blocking condition it reported was `unfunded`,
+  not the badge.
