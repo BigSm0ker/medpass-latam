@@ -25,7 +25,7 @@ Cost: $0
 Risk: Secret exposure if placed in a browser variable, chat, or Git
 Status: COMPLETED
 
-[HUMAN_REQUIRED]
+[COMPLETED]
 
 Task: Allow the local development origin in the Pollar dashboard
 Why: The SDK's first call, `GET /v2/applications/config`, is rejected with
@@ -38,7 +38,41 @@ too when Phase 5 deploys. Then reload `/spike/pollar`; no code change or dev-ser
 needed.
 Cost: $0
 Risk: None. Do not widen the allowlist to a wildcard.
-Status: PENDING
+Status: COMPLETED — verified 2026-09-12: `GET /applications/config` now returns 200 and the login
+modal renders the application name plus email, Google and Wallet sign-in options.
+
+[HUMAN_REQUIRED]
+
+Task: Enable USDC and configure a TestNet distribution rule in the Pollar dashboard
+Why: Authentication now works end to end, but the application has no assets and no faucet, so the
+payment path cannot be exercised at all. Observed live on 2026-09-12 with an authenticated,
+server-verified session:
+
+GET /wallet/assets -> { chain: STELLAR, exists: false,
+assets: [ { type: native, code: XLM, enabledInApp: false } ] }
+GET /distribution/rules -> { rules: [] }
+GET /wallet/balance -> { exists: false, balances: [] }
+
+All three returned HTTP 200. There is no error to fix in this repository: the application simply
+has no asset enabled (not even XLM) and no distribution rule defined. Without a USDC asset the
+adapter correctly reports "not enabled for this app"; without a rule there is no supported way to
+obtain test USDC from inside the application.
+
+The wallet's `exists: false` is a consequence, not a separate fault. Pollar uses deferred funding,
+so the Stellar account is created when the first asset arrives — which cannot happen until a
+faucet or another funding path exists.
+
+Exact action required: In the Pollar Dashboard, for this application on TestNet:
+
+1. Enable USDC as an application asset (and XLM, which currently shows `enabledInApp: false`).
+2. Create a distribution rule that pays test USDC to sdk-users, so `POST /distribution/claim`
+   has something to claim.
+3. If the dashboard offers no faucet rule, ask Pollar how a TestNet application is expected to
+   obtain USDC, and record the answer here.
+   Then reload `/spike/pollar`, press "Refresh assets", and a USDC issuer should appear.
+   Cost: $0 (TestNet)
+   Risk: None financial. Do not enable Mainnet assets while doing this.
+   Status: PENDING
 
 [HUMAN_REQUIRED]
 
