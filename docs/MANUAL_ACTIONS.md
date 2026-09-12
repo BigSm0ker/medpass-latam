@@ -13,16 +13,40 @@ Cost: $0
 Risk: Selecting the wrong GitHub account or accidentally exposing an authentication token
 Status: COMPLETED
 
-[HUMAN_REQUIRED]
+[COMPLETED]
 
 Task: Configure Pollar TestNet credentials for Phase 1
 Why: The technical spike requires the owner's dashboard application and current enabled auth/wallet
 settings.
-Exact action required: In the Pollar Dashboard, confirm TestNet mode and create/copy the documented
-publishable and server keys. Place them locally in `.env.local` using `.env.example`. Do not paste
-keys into chat and do not authorize Mainnet transactions.
-Cost: $0 expected
+Exact action required: Completed. `.env.local` contains `NEXT_PUBLIC_POLLAR_PUBLISHABLE_KEY` and
+`POLLAR_SECRET_KEY` (presence verified by variable name only; no value was read, logged, or
+committed). `.env.local` remains ignored by Git.
+Cost: $0
 Risk: Secret exposure if placed in a browser variable, chat, or Git
+Status: COMPLETED
+
+[HUMAN_REQUIRED]
+
+Task: Run the Phase 1 TestNet spike and record the evidence
+Why: The adapter and credential boundary are complete and validated, but an interactive Pollar
+login cannot be completed by an agent. Phase 1's acceptance gate needs a real TestNet run.
+Exact action required: Run `npm run dev`, open `/spike/pollar`, and work down the checklist in
+`docs/STATUS.md`. Record the wallet custody type, the resolved USDC issuer, whether a distribution
+rule was available, and the TestNet transaction hash in `docs/POLLAR_INTEGRATION.md`. Stay on
+TestNet; do not switch the pinned network.
+Cost: $0 (TestNet only)
+Risk: None financial. Do not record keys or personal data alongside the evidence.
+Status: PENDING
+
+[HUMAN_REQUIRED]
+
+Task: Push the `feature/pollar-spike` branch to GitHub
+Why: This session reaches the repository through a Linux bridge that carries no GitHub
+credentials, so `git push` fails with no authentication available. The commits exist locally.
+Exact action required: From Windows, run `git push -u origin develop` and
+`git push -u origin feature/pollar-spike`, then open a pull request into `develop`.
+Cost: $0
+Risk: None beyond normal review
 Status: PENDING
 
 [HUMAN_REQUIRED]
