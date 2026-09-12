@@ -1,6 +1,6 @@
 # Project status
 
-- **Current phase:** Phase 3 — Charge with consent (code complete; awaiting migration 0002)
+- **Current phase:** Phase 4 — Qualification (agent-side work complete; owner actions pending)
 - **Current branch:** `feature/medical-passport` (from `develop`; `main` is the production branch)
 - **Completed:** Phase 0 foundation. Phase 1: verified the real `0.11.3` API surface from installed
   declarations; typed client/server environment boundary with a browser-import guard; centralized
@@ -28,9 +28,9 @@
 - **Known risks:** deadline is 2026-09-13 23:59 America/La_Paz; demo wallets start with zero
   spendable XLM and cannot pay network fees until the dashboard sets a non-zero starting balance;
   Mainnet access approval is still pending and reserves are the team's own cost.
-- **Next recommended task:** apply migration 0002, verify the charge flow end to end with two
-  wallets, then **Phase 4 — Qualification**: deploy to Vercel, add the production origin to the
-  Pollar dashboard, and be ready to execute the Mainnet transaction the moment access is granted.
+- **Next recommended task:** the three owner actions, in this order — apply migration 0002, deploy
+  to Vercel and allow-list its origin, then chase Mainnet approval in the bounty Telegram group.
+  `docs/DEPLOYMENT.md` and `docs/MAINNET_RUNBOOK.md` have step-by-step procedures.
 
 ## Phase 1 verification — PASSED 2026-09-12
 
