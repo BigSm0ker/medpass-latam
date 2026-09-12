@@ -1,7 +1,7 @@
 # Project status
 
 - **Current phase:** Phase 4 — Qualification (agent-side work complete; owner actions pending)
-- **Current branch:** `feature/medical-passport` (from `develop`; `main` is the production branch)
+- **Current branch:** `develop` (Phases 2 and 3 merged via PR #5; `main` is the production branch)
 - **Completed:** Phase 0 foundation. Phase 1: verified the real `0.11.3` API surface from installed
   declarations; typed client/server environment boundary with a browser-import guard; centralized
   Pollar adapter (`config`, `assets`, `payments`, `funding`, `provider`) pinned to TestNet;
@@ -15,10 +15,11 @@
   receipt is bound to the encounter. Expiry, rejection and revocation all deny access.
   82 unit tests, lint, typecheck, build and formatting pass; no server secret reaches the bundle.
 
-- **Blocked:** migration `0002_encounters.sql` has not been applied — this session has no network
-  route to Supabase, so the owner must run it in the SQL editor. **Mainnet access is still "Under
-  review" with a stated two-business-day turnaround that lands after the Sunday deadline; this is
-  the single largest risk to the submission and it is entirely external.**
+- **Blocked:** nothing on the agent side. Both Supabase migrations are applied and `npm run ci`
+  passes on a clean checkout of `develop` with no environment variables. What remains is external:
+  the Vercel deployment (owner's account) and **Mainnet access, still "Under review" with a stated
+  two-business-day turnaround that lands after the Sunday deadline** — the single largest risk to
+  the submission.
 
 - **Repository:** <https://github.com/BigSm0ker/medpass-latam> is public; `develop` is the default
   collaboration branch and `main` is protected against direct changes, force-push, and deletion.
@@ -28,11 +29,11 @@
 - **Known risks:** deadline is 2026-09-13 23:59 America/La_Paz; demo wallets start with zero
   spendable XLM and cannot pay network fees until the dashboard sets a non-zero starting balance;
   Mainnet access approval is still pending and reserves are the team's own cost.
-- **Next recommended task:** the owner actions, in this order — apply migration 0002; deploy to
-  Vercel **on TestNet without waiting for Mainnet approval**, since the public-URL requirement is
-  independent of the transaction requirement; allow-list the Vercel origin in the TestNet Pollar
-  application; then chase Mainnet approval in the bounty Telegram group. Procedures are in
-  `docs/DEPLOYMENT.md`, `docs/MAINNET_RUNBOOK.md` and `docs/SUBMISSION.md`.
+- **Next recommended task:** deploy to Vercel **on TestNet without waiting for Mainnet approval** —
+  the public-URL requirement is independent of the transaction requirement — then allow-list the
+  Vercel origin in the TestNet Pollar application, record the demo, and chase Mainnet approval in
+  the bounty Telegram group. Procedures are in `docs/DEPLOYMENT.md`, `docs/MAINNET_RUNBOOK.md` and
+  `docs/SUBMISSION.md`.
 
 ## Phase 1 verification — PASSED 2026-09-12
 

@@ -103,7 +103,7 @@ Cost: $0 on the free tier
 Risk: Review any pricing prompt and stop if a paid plan is required.
 Status: PENDING
 
-[HUMAN_REQUIRED]
+[COMPLETED]
 
 Task: Apply the Phase 3 Supabase migration
 Why: The charge-with-consent flow needs the `encounters` and `payments` tables, and this session has
@@ -113,7 +113,8 @@ idempotent and ends with a verification query that should report four tables, RL
 and zero policies.
 Cost: $0
 Risk: None. It creates objects only.
-Status: PENDING
+Status: COMPLETED 2026-09-12 — verified: the query returns all four tables with RLS enabled and
+zero policies, so `encounters` and `payments` exist and remain closed to anon/authenticated.
 
 [HUMAN_REQUIRED]
 
