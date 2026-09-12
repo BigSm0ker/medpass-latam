@@ -28,9 +28,11 @@
 - **Known risks:** deadline is 2026-09-13 23:59 America/La_Paz; demo wallets start with zero
   spendable XLM and cannot pay network fees until the dashboard sets a non-zero starting balance;
   Mainnet access approval is still pending and reserves are the team's own cost.
-- **Next recommended task:** the three owner actions, in this order — apply migration 0002, deploy
-  to Vercel and allow-list its origin, then chase Mainnet approval in the bounty Telegram group.
-  `docs/DEPLOYMENT.md` and `docs/MAINNET_RUNBOOK.md` have step-by-step procedures.
+- **Next recommended task:** the owner actions, in this order — apply migration 0002; deploy to
+  Vercel **on TestNet without waiting for Mainnet approval**, since the public-URL requirement is
+  independent of the transaction requirement; allow-list the Vercel origin in the TestNet Pollar
+  application; then chase Mainnet approval in the bounty Telegram group. Procedures are in
+  `docs/DEPLOYMENT.md`, `docs/MAINNET_RUNBOOK.md` and `docs/SUBMISSION.md`.
 
 ## Phase 1 verification — PASSED 2026-09-12
 
