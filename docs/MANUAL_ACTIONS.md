@@ -43,7 +43,7 @@ modal renders the application name plus email, Google and Wallet sign-in options
 
 [HUMAN_REQUIRED]
 
-Task: Fund the app wallet and enable USDC trustlines in the Pollar dashboard
+Task: Fund the app wallet and enable USDC trustlines in the Pollar dashboard [RESOLVED]
 Why: The dashboard setup checklist shows the two remaining required steps, and they map exactly to
 the two blockers observed live on 2026-09-12:
 
@@ -72,15 +72,17 @@ Exact action required: In the Pollar Dashboard for `medpass-web-testnet`, in thi
 
 [HUMAN_REQUIRED]
 
-Task: Run the Phase 1 TestNet spike and record the evidence
-Why: The adapter and credential boundary are complete and validated, but an interactive Pollar
-login cannot be completed by an agent. Phase 1's acceptance gate needs a real TestNet run.
-Exact action required: Run `npm run dev`, open `/spike/pollar`, and work down the checklist in
-`docs/STATUS.md`. Record the wallet custody type, the resolved USDC issuer, whether a distribution
-rule was available, and the TestNet transaction hash in `docs/POLLAR_INTEGRATION.md`. Stay on
-TestNet; do not switch the pinned network.
-Cost: $0 (TestNet only)
-Risk: None financial. Do not record keys or personal data alongside the evidence.
+Task: Set a non-zero starting XLM balance for demo wallets
+Why: The sponsored base reserve does NOT cover transaction fees. With Funding Mode's
+`Starting XLM balance` at 0, a freshly onboarded wallet holds zero spendable XLM and the first
+payment fails with "Not enough XLM to cover the network fee". This was hit during the Phase 1
+spike and worked around with Friendbot, which is not available on Mainnet and will not exist for
+a judge onboarding fresh during the demo.
+Exact action required: In the Pollar Dashboard under Funding Mode, set `Starting XLM balance` to a
+small non-zero value (1 XLM is ample; fees are 0.00001 XLM) and save. Verify by onboarding a new
+test user and sending a payment without any manual funding.
+Cost: 1 XLM per demo wallet on TestNet (free); real XLM on Mainnet
+Risk: None beyond the per-wallet XLM cost
 Status: PENDING
 
 [HUMAN_REQUIRED]

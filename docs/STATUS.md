@@ -1,6 +1,6 @@
 # Project status
 
-- **Current phase:** Phase 1 — Pollar Technical Spike (adapter complete; live TestNet run pending)
+- **Current phase:** Phase 1 — Pollar Technical Spike (COMPLETE; acceptance gate passed)
 - **Current branch:** `feature/pollar-spike` (from `develop`; `main` is the production branch)
 - **Completed:** Phase 0 foundation. Phase 1: verified the real `0.11.3` API surface from installed
   declarations; typed client/server environment boundary with a browser-import guard; centralized
@@ -8,35 +8,23 @@
   development-only spike route exercising login, wallet, balance, enabled assets, trustline,
   distribution-rule claims, USDC payment, and history; 36 unit tests; lint, typecheck, build and
   formatting pass; production bundle scanned and free of the server secret.
-- **Active:** Phase 1 acceptance requires a human to run the spike page in a browser against the
-  owner's dashboard application and record the TestNet evidence.
-- **Blocked:** the Pollar application wallet is unfunded and USDC trustlines are not enabled.
-  Authentication, custodial wallet assignment and the pinned TestNet endpoint are verified working.
-  The app wallet pays ~2 XLM of base reserve per user wallet, so an unfunded app wallet means
-  `existsOnStellar: false`; and without trustlines the asset catalog returns only `XLM`. Both are
-  the two unchecked items in the dashboard setup checklist and are free to resolve on TestNet.
-  The earlier `ORIGIN_NOT_ALLOWED` blocker is resolved — the Linux bridge this session works
-  through has no GitHub credentials. See `docs/MANUAL_ACTIONS.md`.
+- **Active:** none; waiting for authorization to begin Phase 2.
+- **Blocked:** none for Phase 1. Mainnet remains gated on access approval and explicit human
+  approval at execution time.
+
 - **Repository:** <https://github.com/BigSm0ker/medpass-latam> is public; `develop` is the default
   collaboration branch and `main` is protected against direct changes, force-push, and deletion.
-- **Human actions:** run the TestNet spike and record evidence; push the feature branch; later
-  Mainnet approval, reserve clarification, Vercel, and Supabase authorization.
+- **Human actions:** set a non-zero `Starting XLM balance` in the dashboard so demo wallets can pay
+  fees; later Mainnet approval and funding, Vercel, and Supabase authorization.
   See `docs/MANUAL_ACTIONS.md`.
-- **Known risks:** deadline is 2026-09-13 23:59 America/La_Paz; distribution rules and enabled
-  assets depend on dashboard configuration this repository does not control; Mainnet approval and
-  reserve sponsorship remain external and unconfirmed.
-- **Next recommended task:** run the spike at `/spike/pollar` in development, record the TestNet
-  transaction hash and observed behavior in `docs/POLLAR_INTEGRATION.md`, then authorize
-  **Phase 2 — Medical Passport**.
+- **Known risks:** deadline is 2026-09-13 23:59 America/La_Paz; demo wallets start with zero
+  spendable XLM and cannot pay network fees until the dashboard sets a non-zero starting balance;
+  Mainnet access approval is still pending and reserves are the team's own cost.
+- **Next recommended task:** authorize **Phase 2 — Medical Passport**.
 
-## Phase 1 verification checklist
+## Phase 1 verification — PASSED 2026-09-12
 
-Run `npm run dev` with `.env.local` configured, then open `/spike/pollar`:
-
-- [ ] Login completes and `Server verified` reads `true`
-- [ ] Wallet address, custody, and network (`testnet`) are shown
-- [ ] Enabled assets resolve a USDC issuer; trustline is established or establishable
-- [ ] A distribution rule is listed and a claim increases the spendable USDC balance
-- [ ] A USDC payment to a second synthetic address returns `success` or `pending` with a hash
-- [ ] The Stellar Expert link resolves the transaction on TestNet
-- [ ] Transaction history includes the payment
+Confirmed TestNet payment: 1 USDC, ledger 4633398, hash
+`5ce00279e8883b8e59a361e592a1c9c7de2dac717b7b14bf1212a60bf8e0f3f6`. Login, server verification,
+custodial wallet, sponsored trustline, asset catalog, payment and explorer proof all verified
+against Horizon. See `docs/POLLAR_INTEGRATION.md` for the full evidence and the setup sequence.
