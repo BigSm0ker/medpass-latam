@@ -22,6 +22,11 @@ ships npm 11, and npm 10 and npm 11 resolve the same `package.json` into differe
 lockfile written by npm 10 fails `npm ci` under npm 11 with "package.json and package-lock.json are
 not in sync". Install it with `npm install -g npm@11.19.1`.
 
+Validate the way CI does, not the way that is convenient. CI checks out a clean tree with **no
+environment variables at all**, so a local build with a populated `.env.local` can pass while the
+same commit fails in CI — that is exactly how a crash on the unconfigured code path reached `main`
+once. Before pushing, build once with no `.env.local` present.
+
 After adding or changing a dependency, run `npm ci` locally before pushing. `npm install` succeeds
 on a lockfile that `npm ci` will reject, so only `npm ci` proves CI will pass.
 
