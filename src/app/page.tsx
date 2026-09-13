@@ -13,23 +13,23 @@ import { PrototypeNotice } from "@/components/prototype-notice";
 const steps = [
   {
     icon: Stethoscope,
-    title: "The clinic creates a charge",
-    body: "An amount, a reason, and only the health context this visit actually needs.",
+    title: "La clínica crea un cobro",
+    body: "Un monto, un motivo, y solo el contexto de salud que esta visita realmente necesita.",
   },
   {
     icon: QrCode,
-    title: "The patient scans one code",
-    body: "The code carries a random reference — no medical data, no identity, nothing to leak.",
+    title: "El paciente escanea un código",
+    body: "El código lleva solo una referencia aleatoria — sin datos médicos, sin identidad, nada que filtrar.",
   },
   {
     icon: ShieldCheck,
-    title: "The patient decides what to share",
-    body: "Approve some items, refuse others. Access expires, and can be withdrawn at any time.",
+    title: "El paciente decide qué compartir",
+    body: "Aprueba algunos elementos, rechaza otros. El acceso expira y puede retirarse en cualquier momento.",
   },
   {
     icon: Wallet,
-    title: "Payment settles in USDC",
-    body: "Through Pollar, in seconds, from anywhere — with a receipt anyone can verify on-chain.",
+    title: "El pago se liquida en USDC",
+    body: "A través de Pollar, en segundos, desde cualquier lugar — con un recibo que cualquiera puede verificar on-chain.",
   },
 ];
 
@@ -49,14 +49,14 @@ export default function Home() {
             Pagos de salud con consentimiento
           </p>
           <h1 className="mt-4 max-w-3xl text-4xl leading-[1.08] font-semibold tracking-[-0.03em] sm:text-5xl lg:text-6xl">
-            Pay the clinic in seconds. Share only what the doctor needs.
+            Paga la consulta en segundos. Comparte solo lo que el médico necesita.
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-            Across Latin America, plenty of consultations are still settled in cash: the
-            clinic has no card terminal, or the person paying is a relative in another
-            country. MedPass turns that visit into one QR code — the patient approves
-            exactly which health details the provider may see, and pays in USDC through
-            Pollar.
+            En América Latina, muchas consultas todavía se cobran en efectivo: la
+            clínica no tiene datáfono, o quien paga es un familiar en otro país.
+            MedPass convierte esa visita en un solo código QR — el paciente
+            aprueba exactamente qué datos de salud puede ver el proveedor, y paga
+            en USDC a través de Pollar.
           </p>
 
           <div className="mt-9 flex flex-wrap items-center gap-3">
@@ -64,21 +64,21 @@ export default function Home() {
               href="/charge"
               className="inline-flex items-center gap-2 rounded-xl bg-slate-950 px-5 py-3 font-semibold text-white shadow-lg shadow-slate-900/15"
             >
-              I&apos;m a provider — create a charge
+              Soy proveedor — crear un cobro
               <ArrowRight aria-hidden="true" className="h-4 w-4" />
             </Link>
             <Link
               href="/passport"
               className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white/70 px-5 py-3 font-semibold"
             >
-              I&apos;m a patient — my passport
+              Soy paciente — mi pasaporte
             </Link>
           </div>
 
           <p className="mt-4 text-sm text-slate-500">
-            Sign in with an email or Google account; Pollar creates the wallet for you.
-            To see the whole flow, open the provider page on one device and scan its QR
-            with another.
+            Inicia sesión con un correo o una cuenta de Google; Pollar crea la
+            billetera por ti. Para ver el flujo completo, abre la página del
+            proveedor en un dispositivo y escanea su QR con otro.
           </p>
         </section>
 
@@ -104,26 +104,28 @@ export default function Home() {
 
         <section className="mt-10 rounded-3xl border border-white/80 bg-white/80 p-6 shadow-lg shadow-emerald-950/5 backdrop-blur sm:p-8">
           <h2 className="text-xl font-semibold">
-            Why the consent layer matters to the payment
+            Por qué la capa de consentimiento le importa al pago
           </h2>
           <p className="mt-3 leading-7 text-slate-600">
-            A provider who can see a patient&apos;s allergies and current medications
-            before treating them is a provider worth paying. But handing over a whole
-            medical history to settle a bill is a bad trade. MedPass makes the
-            disclosure as small as the visit requires: the provider asks for specific
-            items, the patient grants a subset, and access expires on its own. Health
-            data never touches the blockchain — only the payment does.
+            Un proveedor que puede ver las alergias y los medicamentos actuales
+            de un paciente antes de atenderlo es un proveedor que vale la pena
+            pagar. Pero entregar todo un historial médico para saldar una cuenta
+            es un mal trato. MedPass hace que la divulgación sea tan pequeña como
+            la visita lo requiere: el proveedor pide elementos específicos, el
+            paciente concede un subconjunto, y el acceso expira solo. Los datos de
+            salud nunca tocan la blockchain — solo el pago lo hace.
           </p>
         </section>
 
         <section className="mt-4 rounded-3xl border border-amber-200/80 bg-amber-50/70 p-6 sm:p-8">
-          <h2 className="text-xl font-semibold">What is real, and what is not</h2>
+          <h2 className="text-xl font-semibold">Qué es real y qué no lo es</h2>
           <p className="mt-3 leading-7 text-amber-950">
-            The payment is real: USDC moves on Stellar through Pollar, and every receipt
-            links to a public explorer so you can check it yourself. The medical records
-            are entirely fictitious. This is a prototype built for the Pollar Bounty at
-            Buildathon Cochabamba 2026 — it is not a clinical system and makes no
-            medical claims.
+            El pago es real: el USDC se mueve en Stellar a través de Pollar, y
+            cada recibo enlaza a un explorador público para que lo verifiques tú
+            mismo. Los registros médicos son enteramente ficticios. Este es un
+            prototipo construido para el Pollar Bounty en el Buildathon
+            Cochabamba 2026 — no es un sistema clínico y no hace ninguna
+            afirmación médica.
           </p>
         </section>
 
@@ -134,7 +136,7 @@ export default function Home() {
             target="_blank"
             rel="noreferrer"
           >
-            Source code and engineering notes
+            Código fuente y notas de ingeniería
           </a>
         </footer>
       </div>

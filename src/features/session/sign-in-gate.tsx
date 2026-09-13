@@ -42,7 +42,7 @@ export function SignInGate({
           onClick={onOpenLogin}
           className="justify-self-start rounded-xl bg-slate-950 px-5 py-2.5 font-semibold text-white"
         >
-          Sign in with Pollar
+          Iniciar sesión con Pollar
         </button>
       ) : (
         <button
@@ -52,16 +52,16 @@ export function SignInGate({
           className="justify-self-start rounded-xl bg-slate-950 px-5 py-2.5 font-semibold text-white disabled:opacity-40"
         >
           {state.step === "proving"
-            ? "Waiting for your wallet…"
+            ? "Esperando tu billetera…"
             : pollarReady
-              ? "Confirm it's you"
-              : "Confirming your session…"}
+              ? "Confirmar que eres tú"
+              : "Confirmando tu sesión…"}
         </button>
       )}
 
       <p className="text-xs text-slate-500">
-        Signing proves you control this wallet. It authorizes no payment and moves no
-        funds.
+        Firmar demuestra que controlas esta billetera. No autoriza ningún pago ni
+        mueve fondos.
       </p>
 
       {walletAddress ? (
