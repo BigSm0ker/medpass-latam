@@ -1,8 +1,10 @@
 # Project status
 
 - **Current phase:** Phase 4 — Qualification (agent-side work complete; owner actions pending)
-- **Current branch:** `feature/judge-experience`, branched from `develop` (Phases 2 and 3 merged via
-  PR #5; `main` is the production branch)
+- **Current branch:** `feature/mainnet-cutover`, branched from `docs/mainnet-prep` off `develop`
+  (the judge-experience pass merged via PR #6). **The cutover branch must not be merged until the
+  Mainnet funding wallet holds XLM, the dashboard is fully configured, and a local run against
+  Mainnet has been verified** — merging it repoints the public URL at Mainnet.
 - **Completed:** Phase 0 foundation. Phase 1: verified the real `0.11.3` API surface from installed
   declarations; typed client/server environment boundary with a browser-import guard; centralized
   Pollar adapter (`config`, `assets`, `payments`, `funding`, `provider`) pinned to TestNet;

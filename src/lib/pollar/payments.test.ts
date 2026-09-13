@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { MEDPASS_STELLAR_NETWORK } from "./config";
 import {
   buildSettlementPayment,
   explorerUrl,
@@ -7,12 +8,19 @@ import {
   toSettlementResult,
 } from "./payments";
 
-// Synthetic, well-formed Stellar public keys. Not funded, not real accounts.
+// Well-formed Stellar public keys used only as fixtures — nothing here is ever
+// submitted. They are real addresses on their respective networks (DESTINATION
+// is in fact Circle's Mainnet USDC issuer), so never copy them into a payment.
 const DESTINATION = "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN";
 const USDC = {
   code: "USDC",
   issuer: "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5",
 };
+
+// These cases are about the guard behaving correctly *relative* to whatever
+// network is pinned, not about which one that is. config.test.ts asserts the pin.
+const APPROVED = MEDPASS_STELLAR_NETWORK;
+const UNAPPROVED = MEDPASS_STELLAR_NETWORK === "mainnet" ? "testnet" : "mainnet";
 
 describe("address and amount validation", () => {
   it("accepts a well-formed Stellar public key", () => {
@@ -46,7 +54,7 @@ describe("buildSettlementPayment", () => {
       destination: DESTINATION,
       amount: "1",
       asset: USDC,
-      network: "testnet",
+      network: APPROVED,
     });
 
     expect(result.ok).toBe(true);
@@ -65,7 +73,7 @@ describe("buildSettlementPayment", () => {
       destination: DESTINATION,
       amount: "1",
       asset: USDC,
-      network: "mainnet",
+      network: UNAPPROVED,
     });
 
     expect(result.ok).toBe(false);
@@ -78,7 +86,7 @@ describe("buildSettlementPayment", () => {
       destination: "not-an-address",
       amount: "1",
       asset: USDC,
-      network: "testnet",
+      network: APPROVED,
     });
 
     expect(result.ok).toBe(false);
@@ -108,7 +116,7 @@ describe("buildSettlementPayment", () => {
       destination: DESTINATION,
       amount: "0",
       asset: USDC,
-      network: "testnet",
+      network: APPROVED,
     });
 
     expect(result.ok).toBe(false);

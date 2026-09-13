@@ -87,9 +87,23 @@ In `src/lib/pollar/config.ts`:
 export const MEDPASS_STELLAR_NETWORK: StellarNetwork = "mainnet";
 ```
 
-- [ ] Constant changed and committed
+- [x] Constant changed and committed — on `feature/mainnet-cutover`, **not merged**. The same
+      commit updates `config.test.ts`, which asserts the pinned value as a literal so that flipping
+      the network can never be a single-file accident, and retargets `payments.test.ts` at whichever
+      network is pinned.
 - [ ] Mainnet Pollar keys set in the Vercel environment
 - [ ] Redeployed, and the deployed page reports `mainnet`
+
+Two things the switch also changed, both to stop Mainnet from turning a harmless control into an
+expensive one:
+
+- The spike route's faucet and raw payment form are hidden whenever the pinned network is not
+  `testnet`. That form submits with no confirmation step, which is fine against play money and
+  unacceptable against real funds. The product flow at `/charge` states amount and destination
+  before anything is signed, so it remains the only payment path.
+- `buildSettlementPayment`'s rejection messages no longer claim the app is restricted to a test
+  network, and are in Spanish like the rest of the interface — they surface directly to the patient
+  through the consent screen.
 
 `buildSettlementPayment` re-checks the network independently of this constant, so both must agree
 before any payment is built.

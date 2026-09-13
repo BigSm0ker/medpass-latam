@@ -53,8 +53,7 @@ export function buildSettlementPayment(input: {
       ok: false,
       reason: "network_not_approved",
       message:
-        "Payments are restricted to the approved test network. " +
-        "A Mainnet transaction requires explicit human approval at execution time.",
+        "Este pago no corresponde a la red en la que está fijado este despliegue.",
     };
   }
 
@@ -62,7 +61,7 @@ export function buildSettlementPayment(input: {
     return {
       ok: false,
       reason: "invalid_destination",
-      message: "The destination is not a valid Stellar public key.",
+      message: "La dirección de destino no es una clave pública de Stellar válida.",
     };
   }
 
@@ -70,7 +69,7 @@ export function buildSettlementPayment(input: {
     return {
       ok: false,
       reason: "invalid_amount",
-      message: "The amount must be a positive number with at most 7 decimal places.",
+      message: "El monto debe ser un número positivo con máximo 7 decimales.",
     };
   }
 

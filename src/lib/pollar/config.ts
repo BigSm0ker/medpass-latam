@@ -7,8 +7,14 @@ import { getClientEnv } from "@/lib/env/client";
  * Mainnet is a deliberate, human-approved release step (ADR-004). Keeping the
  * constant here means a Mainnet switch is a reviewable diff in one file rather
  * than an environment variable somebody can flip by accident.
+ *
+ * Switched to `mainnet` on 2026-09-13, after Pollar granted Mainnet access, so
+ * that the deployed application runs where the bounty requires it to run. The
+ * publishable key in the environment must be the Mainnet application's, and
+ * `NEXT_PUBLIC_*` values are inlined at build time — changing the key without a
+ * redeploy changes nothing. Payments from here move real money.
  */
-export const MEDPASS_STELLAR_NETWORK: StellarNetwork = "testnet";
+export const MEDPASS_STELLAR_NETWORK: StellarNetwork = "mainnet";
 
 /** Human-readable device label shown in Pollar's active-sessions UI. */
 const DEVICE_LABEL = "MedPass LATAM (prototype)";
