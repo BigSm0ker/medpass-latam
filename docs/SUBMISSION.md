@@ -7,7 +7,7 @@ Everything the bounty asks for, drafted and ready to paste into the Telegram gro
 - [ ] Project name, team and members
 - [ ] Description, at most 300 words — **drafted below**
 - [ ] Repository link — <https://github.com/BigSm0ker/medpass-latam>
-- [ ] Public URL — pending deployment (`docs/DEPLOYMENT.md`)
+- [x] Public URL — <https://medpass-latam.vercel.app/>
 - [ ] Demo video, at most 3 minutes — **script below**
 - [ ] Mainnet transaction hash — pending access approval (`docs/MAINNET_RUNBOOK.md`)
 - [ ] Vaquita account to receive the prize

@@ -29,7 +29,7 @@ Gambling, casinos, trading, speculation and memecoins are excluded. MedPass is u
 2. Pollar integrated in at least one real flow — wallet, charge, payment or ramp.
 3. One real Mainnet transaction through Pollar. **1 USDC is enough.**
 4. Public repository with a README explaining how Pollar was integrated.
-5. Public URL the judges can try.
+5. Public URL the judges can try — <https://medpass-latam.vercel.app/>.
 6. Demo of at most 3 minutes, live or recorded.
 
 ## Submission, via the bounty Telegram group before closing
@@ -79,7 +79,7 @@ evidence. No Phase 0 transaction is allowed.
 - [x] Public-repository-ready code and documentation
 - [x] Reproducible local toolchain and secret-free CI
 - [x] Public GitHub repository: <https://github.com/BigSm0ker/medpass-latam>
-- [ ] Public Vercel URL
+- [x] Public Vercel URL: <https://medpass-latam.vercel.app/>
 - [ ] Pollar integration in a real flow
 - [ ] Mainnet access confirmed
 - [ ] Explicit approval for approximately 1 USDC transaction
