@@ -7,6 +7,7 @@ import {
   projectPassport,
   type CreateEncounterInput,
   type DisclosedPassport,
+  type EncounterHistoryItem,
   type EncounterRequestView,
   type EncounterStatus,
   type PassportField,
@@ -308,4 +309,49 @@ export async function getProviderAddress(token: string): Promise<string | null> 
   const row = await loadByToken(token);
   if (!row) return null;
   return addressFor(row.provider_profile_id);
+}
+
+/**
+ * A provider's recent charges, most recent first.
+ *
+ * Exists so a clinic sees this as a tool it uses every day rather than a
+ * one-shot demo: past charges, what was approved out of what was asked, and a
+ * link to the on-chain proof for anything paid.
+ */
+export async function listEncountersForProvider(
+  providerAddress: string,
+  limit = 20,
+): Promise<EncounterHistoryItem[]> {
+  const supabase = getServiceClient();
+  const providerProfileId = await profileIdFor(providerAddress);
+
+  const { data, error } = await supabase
+    .from("encounters")
+    .select(
+      "access_token, provider_label, reason, amount_usdc, status, requested_fields, approved_fields, created_at, payments(status, tx_hash)",
+    )
+    .eq("provider_profile_id", providerProfileId)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) throw new Error(`Could not load the history: ${error.message}`);
+
+  type PaymentJoin = { status: "pending" | "success" | "error"; tx_hash: string | null };
+
+  return (data ?? []).map((row) => {
+    const joined = row.payments as PaymentJoin | PaymentJoin[] | null;
+    const payment = Array.isArray(joined) ? (joined[0] ?? null) : joined;
+
+    return {
+      token: row.access_token as string,
+      providerLabel: row.provider_label as string | null,
+      reason: row.reason as string | null,
+      amountUsdc: row.amount_usdc as string,
+      status: row.status as EncounterStatus,
+      requestedFields: row.requested_fields as PassportField[],
+      approvedFields: row.approved_fields as PassportField[],
+      createdAt: row.created_at as string,
+      payment: payment ? { status: payment.status, txHash: payment.tx_hash } : null,
+    };
+  });
 }
