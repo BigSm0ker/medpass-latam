@@ -9,7 +9,7 @@ export async function POST(
 ) {
   const session = await getSession();
   if (!session) {
-    return NextResponse.json({ error: "Sign in to revoke access." }, { status: 401 });
+    return NextResponse.json({ error: "Inicia sesión para revocar el acceso." }, { status: 401 });
   }
 
   const { token } = await params;
@@ -18,7 +18,7 @@ export async function POST(
     const result = await revokeConsent(session.address, token);
     if (!result.ok) {
       return NextResponse.json(
-        { error: "This request was not found." },
+        { error: "No se encontró esta solicitud." },
         { status: 404 },
       );
     }
@@ -29,6 +29,6 @@ export async function POST(
       "[encounters] revoke:",
       error instanceof Error ? error.message : "unknown",
     );
-    return NextResponse.json({ error: "Could not revoke access." }, { status: 503 });
+    return NextResponse.json({ error: "No se pudo revocar el acceso." }, { status: 503 });
   }
 }

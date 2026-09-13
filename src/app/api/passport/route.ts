@@ -14,7 +14,7 @@ import { getPassport, savePassport } from "@/features/passport/service";
 
 function unauthorized() {
   return NextResponse.json(
-    { error: "Sign in to view your passport." },
+    { error: "Inicia sesión para ver tu pasaporte." },
     { status: 401 },
   );
 }
@@ -29,7 +29,7 @@ function serverError(context: string, error: unknown) {
     error instanceof Error ? error.message : "unknown",
   );
   return NextResponse.json(
-    { error: "Could not reach your passport." },
+    { error: "No se pudo acceder a tu pasaporte." },
     { status: 503 },
   );
 }
@@ -54,14 +54,14 @@ export async function PUT(request: Request) {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: "Malformed request body." }, { status: 400 });
+    return NextResponse.json({ error: "Cuerpo de solicitud inválido." }, { status: 400 });
   }
 
   const parsed = passportInputSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
       {
-        error: "Some entries are invalid.",
+        error: "Algunos datos no son válidos.",
         issues: parsed.error.issues.map((i) => i.path.join(".")),
       },
       { status: 422 },

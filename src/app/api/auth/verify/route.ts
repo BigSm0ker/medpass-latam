@@ -17,12 +17,12 @@ export async function POST(request: Request) {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: "Malformed request body." }, { status: 400 });
+    return NextResponse.json({ error: "Cuerpo de solicitud inválido." }, { status: 400 });
   }
 
   const parsed = sep53ProofSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid sign-in proof." }, { status: 400 });
+    return NextResponse.json({ error: "Prueba de inicio de sesión inválida." }, { status: 400 });
   }
 
   const challenge = verifyChallenge(parsed.data.token);
@@ -30,8 +30,8 @@ export async function POST(request: Request) {
     const status = challenge.reason === "expired" ? 410 : 400;
     const error =
       challenge.reason === "expired"
-        ? "This sign-in request expired. Please try again."
-        : "Invalid sign-in request.";
+        ? "Esta solicitud de inicio de sesión expiró. Intenta de nuevo."
+        : "Solicitud de inicio de sesión inválida.";
     return NextResponse.json({ error }, { status });
   }
 
@@ -42,7 +42,7 @@ export async function POST(request: Request) {
   });
 
   if (!proven) {
-    return NextResponse.json({ error: "Signature did not verify." }, { status: 401 });
+    return NextResponse.json({ error: "La firma no pudo verificarse." }, { status: 401 });
   }
 
   await setSessionCookie(parsed.data.signerAddress);

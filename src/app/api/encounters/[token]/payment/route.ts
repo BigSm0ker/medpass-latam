@@ -16,7 +16,7 @@ export async function GET(
   { params }: { params: Promise<{ token: string }> },
 ) {
   const session = await getSession();
-  if (!session) return NextResponse.json({ error: "Sign in to pay." }, { status: 401 });
+  if (!session) return NextResponse.json({ error: "Inicia sesión para pagar." }, { status: 401 });
 
   const { token } = await params;
 
@@ -24,7 +24,7 @@ export async function GET(
     const encounter = await getPatientEncounter(session.address, token);
     if (!encounter) {
       return NextResponse.json(
-        { error: "This charge was not found." },
+        { error: "No se encontró este cobro." },
         { status: 404 },
       );
     }
@@ -32,7 +32,7 @@ export async function GET(
     const destination = await getProviderAddress(token);
     if (!destination) {
       return NextResponse.json(
-        { error: "This provider has no payout address." },
+        { error: "Este proveedor no tiene una dirección de cobro configurada." },
         { status: 409 },
       );
     }
@@ -52,7 +52,7 @@ export async function GET(
       error instanceof Error ? error.message : "unknown",
     );
     return NextResponse.json(
-      { error: "Could not prepare the payment." },
+      { error: "No se pudo preparar el pago." },
       { status: 503 },
     );
   }
@@ -69,7 +69,7 @@ export async function POST(
   { params }: { params: Promise<{ token: string }> },
 ) {
   const session = await getSession();
-  if (!session) return NextResponse.json({ error: "Sign in to pay." }, { status: 401 });
+  if (!session) return NextResponse.json({ error: "Inicia sesión para pagar." }, { status: 401 });
 
   const { token } = await params;
 
@@ -77,19 +77,19 @@ export async function POST(
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: "Malformed request body." }, { status: 400 });
+    return NextResponse.json({ error: "Cuerpo de solicitud inválido." }, { status: 400 });
   }
 
   const parsed = paymentRecordSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid payment result." }, { status: 422 });
+    return NextResponse.json({ error: "Resultado de pago inválido." }, { status: 422 });
   }
 
   try {
     const encounter = await getPatientEncounter(session.address, token);
     if (!encounter) {
       return NextResponse.json(
-        { error: "This charge was not found." },
+        { error: "No se encontró este cobro." },
         { status: 404 },
       );
     }
@@ -109,7 +109,7 @@ export async function POST(
       error instanceof Error ? error.message : "unknown",
     );
     return NextResponse.json(
-      { error: "Could not record the payment." },
+      { error: "No se pudo registrar el pago." },
       { status: 503 },
     );
   }
