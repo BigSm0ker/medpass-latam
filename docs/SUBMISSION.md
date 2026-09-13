@@ -104,20 +104,33 @@ Point at the amount, the sender, the receiver, the ledger number. _"Esto no es n
 diciendo que funcionó. Es el ledger público de Stellar. Un USDC, de esta cuenta a esta otra,
 ledger 4633398."_
 
-**0:25–1:05 — The Pollar session is a real Stellar identity.**
-On `/spike/pollar`, walk down the session panel. _"`Authenticated` es la sesión del navegador.
-`Server verified` es la que importa: nuestro servidor verificó la firma de la billetera, no le
-cree al navegador. La red está fijada en código, no en una variable de entorno, para que ningún
-despliegue la cambie por accidente. Y `Exists on Stellar: true` significa que esta cuenta existe
-de verdad en el ledger, no es un identificador de mentira."_
+**0:25–0:50 — The account itself, still on the explorer.**
+Navigate to the payer account:
+`https://horizon-testnet.stellar.org/accounts/GD2IOJAIUM6VBYHXXOXP3OMG7XPPH3MR2SQOAM6JKTTEHHDIEYEXG7P4`.
+_"Esta es la billetera del paciente en el ledger: diecinueve USDC, la trustline patrocinada por la
+aplicación, y el número de sponsor. Nada de esto lo dice mi aplicación — lo dice Stellar."_
 
-**1:05–1:30 — The asset catalog resolves at runtime.**
+**0:50–1:15 — The Pollar session is a server-verified identity.**
+On `/spike/pollar`, walk down the session panel. _"`Authenticated` es la sesión del navegador.
+`Server verified` es la que importa: nuestro servidor verificó la firma de la billetera con SEP-53,
+no le cree al navegador. La red está fijada en código, no en una variable de entorno, para que
+ningún despliegue la cambie por accidente. Y la custodia es `internal`: Pollar creó esta billetera,
+el usuario entró con Google."_
+
+**Do not point at `Exists on Stellar`.** It is a snapshot taken when the wallet object is issued,
+not a live read, and it can sit at `false` for an account that demonstrably holds assets — see
+`docs/POLLAR_INTEGRATION.md`. If it happens to read `false` on camera, that is the field being
+stale, not the account being empty. If asked, the honest answer is the strong one: _"ese campo del
+SDK es una foto del momento en que se emitió la billetera, no una lectura del ledger; por eso
+verificamos contra Horizon y no contra nuestra propia aplicación."_
+
+**1:15–1:35 — The asset catalog resolves at runtime.**
 Show *Balance and assets*: the USDC issuer, the trustline, the balance. _"El emisor del USDC nunca
 está escrito a mano en el código: sale del catálogo de activos de Pollar en tiempo de ejecución.
 Por eso cambiar de red es configuración, no reescribir el producto. La trustline la patrocina la
 aplicación — el usuario no paga esa reserva."_
 
-**1:30–1:55 — A payment through the SDK, honestly reported.**
+**1:35–1:55 — A payment through the SDK, honestly reported.**
 Send a small amount from the spike form. Show `Status` and `Hash`. _"`sendPayment` responde
 `success`, `pending` o `error`. Tratamos `pending` como pendiente: un recibo nunca afirma una
 liquidación que el ledger todavía no confirmó."_
