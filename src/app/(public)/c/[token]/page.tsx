@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { ConsentScreen } from "./consent-screen";
 
 export const metadata: Metadata = {
-  title: "Consultation request — MedPass LATAM",
+  title: "Solicitud de consulta — MedPass LATAM",
   description:
-    "Review what a provider is asking for, approve only what you choose, and pay.",
+    "Revisa qué te está pidiendo el proveedor, aprueba solo lo que elijas, y paga.",
 };
 
 export default async function ConsentPage({
