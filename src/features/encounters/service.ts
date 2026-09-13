@@ -65,6 +65,21 @@ async function addressFor(profileId: string): Promise<string | null> {
   return data.stellar_address as string;
 }
 
+/**
+ * Renders a Postgres `numeric` as the decimal string the rest of the app types
+ * it as.
+ *
+ * `amount_usdc` is `numeric(12, 7)`, and the client hands it back as a
+ * JavaScript number, not a string — so every `as string` on this column was a
+ * lie TypeScript could not catch. It surfaced at the far end of the system:
+ * Pollar's `sendPayment` rejected the payload with "expected string, received
+ * number" and the patient saw a wall of validation output. Normalising here
+ * means no caller can inherit the wrong type.
+ */
+function decimalString(value: string | number): string {
+  return typeof value === "string" ? value : String(value);
+}
+
 async function loadByToken(token: string): Promise<EncounterRow | null> {
   const supabase = getServiceClient();
   const { data, error } = await supabase
@@ -74,7 +89,13 @@ async function loadByToken(token: string): Promise<EncounterRow | null> {
     .maybeSingle();
 
   if (error) throw new Error(`Could not load the charge: ${error.message}`);
-  return (data as EncounterRow | null) ?? null;
+  if (!data) return null;
+
+  const row = data as Omit<EncounterRow, "amount_usdc"> & {
+    amount_usdc: string | number;
+  };
+
+  return { ...row, amount_usdc: decimalString(row.amount_usdc) };
 }
 
 export type CreatedEncounter = { id: string; token: string; amountUsdc: string };
@@ -109,7 +130,7 @@ export async function createEncounter(
   return {
     id: data.id as string,
     token: data.access_token as string,
-    amountUsdc: data.amount_usdc as string,
+    amountUsdc: decimalString(data.amount_usdc as string | number),
   };
 }
 
@@ -336,7 +357,10 @@ export async function listEncountersForProvider(
 
   if (error) throw new Error(`Could not load the history: ${error.message}`);
 
-  type PaymentJoin = { status: "pending" | "success" | "error"; tx_hash: string | null };
+  type PaymentJoin = {
+    status: "pending" | "success" | "error";
+    tx_hash: string | null;
+  };
 
   return (data ?? []).map((row) => {
     const joined = row.payments as PaymentJoin | PaymentJoin[] | null;
@@ -346,7 +370,7 @@ export async function listEncountersForProvider(
       token: row.access_token as string,
       providerLabel: row.provider_label as string | null,
       reason: row.reason as string | null,
-      amountUsdc: row.amount_usdc as string,
+      amountUsdc: decimalString(row.amount_usdc as string | number),
       status: row.status as EncounterStatus,
       requestedFields: row.requested_fields as PassportField[],
       approvedFields: row.approved_fields as PassportField[],

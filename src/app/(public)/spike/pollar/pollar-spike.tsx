@@ -193,8 +193,10 @@ function SpikeConsole() {
           </h1>
           <p className="mt-1 text-sm text-slate-600">
             Development-only. Network is pinned to{" "}
-            <strong>{MEDPASS_STELLAR_NETWORK}</strong>; Mainnet requires explicit
-            approval.
+            <strong>{MEDPASS_STELLAR_NETWORK}</strong>
+            {MEDPASS_STELLAR_NETWORK === "mainnet"
+              ? " — anything submitted from here moves real funds."
+              : "; Mainnet requires explicit approval."}
           </p>
         </div>
         <PrototypeNotice />
@@ -288,101 +290,122 @@ function SpikeConsole() {
         </div>
       </Section>
 
-      <Section title="TestNet asset acquisition (distribution rules)">
-        <button
-          type="button"
-          onClick={() => void loadRules()}
-          disabled={!verified || busy === "rules"}
-          className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold disabled:opacity-40"
-        >
-          {busy === "rules" ? "Loading…" : "List distribution rules"}
-        </button>
-        {rules?.length === 0 ? (
-          <p className="mt-3 text-sm text-slate-600">
-            No distribution rules configured for this application.
-          </p>
-        ) : null}
-        <ul className="mt-3 grid gap-2">
-          {rules?.map((rule) => (
-            <li
-              key={rule.id}
-              className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-200 px-3 py-2"
+      {/*
+        Both sections below are TestNet instruments: distribution rules are a
+        faucet that does not exist on Mainnet, and the payment form submits a
+        transfer with no confirmation step. Harmless against play money; on
+        Mainnet the same button moves real funds irreversibly on one click, so
+        the pinned network gates them rather than a reviewer's memory.
+      */}
+      {MEDPASS_STELLAR_NETWORK === "testnet" ? (
+        <>
+          <Section title="TestNet asset acquisition (distribution rules)">
+            <button
+              type="button"
+              onClick={() => void loadRules()}
+              disabled={!verified || busy === "rules"}
+              className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold disabled:opacity-40"
             >
-              <span className="text-sm">
-                {rule.name} — {rule.amount} {rule.assetCode}
-                {rule.claimable
-                  ? ""
-                  : ` (unavailable${rule.reason ? `: ${rule.reason}` : ""})`}
-              </span>
-              <button
-                type="button"
-                onClick={() => void claim(rule.id)}
-                disabled={!rule.claimable || busy === rule.id}
-                className="rounded-lg bg-emerald-700 px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-40"
-              >
-                {busy === rule.id ? "Claiming…" : "Claim"}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </Section>
-
-      <Section title="TestNet USDC payment">
-        <div className="grid gap-3 sm:grid-cols-[2fr_1fr]">
-          <label className="grid gap-1 text-sm">
-            <span className="text-slate-600">Destination (Stellar public key)</span>
-            <input
-              value={destination}
-              onChange={(event) => setDestination(event.target.value.trim())}
-              placeholder="G..."
-              className="rounded-lg border border-slate-300 px-3 py-2 font-mono text-sm"
-            />
-          </label>
-          <label className="grid gap-1 text-sm">
-            <span className="text-slate-600">Amount (USDC)</span>
-            <input
-              value={amount}
-              onChange={(event) => setAmount(event.target.value.trim())}
-              inputMode="decimal"
-              className="rounded-lg border border-slate-300 px-3 py-2 font-mono text-sm"
-            />
-          </label>
-        </div>
-        {!affordable && settlementBalance ? (
-          <p className="mt-2 text-sm text-amber-800">
-            Spendable USDC does not cover this amount.
-          </p>
-        ) : null}
-        <button
-          type="button"
-          onClick={() => void pay()}
-          disabled={!verified || !settlementAsset || busy === "pay"}
-          className="mt-4 rounded-lg bg-slate-950 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
-        >
-          {busy === "pay" ? "Submitting…" : "Send TestNet payment"}
-        </button>
-
-        {result ? (
-          <div className="mt-4 rounded-lg border border-slate-200 p-3 text-sm">
-            <Row label="Status" value={result.status} />
-            {result.status !== "error" ? (
-              <>
-                <Row label="Hash" value={result.hash} />
-                <a
-                  className="mt-2 inline-block font-semibold text-emerald-800 underline"
-                  href={explorerUrl(result.hash, network)}
-                  target="_blank"
-                  rel="noreferrer"
+              {busy === "rules" ? "Loading…" : "List distribution rules"}
+            </button>
+            {rules?.length === 0 ? (
+              <p className="mt-3 text-sm text-slate-600">
+                No distribution rules configured for this application.
+              </p>
+            ) : null}
+            <ul className="mt-3 grid gap-2">
+              {rules?.map((rule) => (
+                <li
+                  key={rule.id}
+                  className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-200 px-3 py-2"
                 >
-                  View on Stellar Expert
-                </a>
-              </>
-            ) : (
-              <p className="text-red-700">{result.message}</p>
-            )}
-          </div>
-        ) : null}
-      </Section>
+                  <span className="text-sm">
+                    {rule.name} — {rule.amount} {rule.assetCode}
+                    {rule.claimable
+                      ? ""
+                      : ` (unavailable${rule.reason ? `: ${rule.reason}` : ""})`}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => void claim(rule.id)}
+                    disabled={!rule.claimable || busy === rule.id}
+                    className="rounded-lg bg-emerald-700 px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-40"
+                  >
+                    {busy === rule.id ? "Claiming…" : "Claim"}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </Section>
+
+          <Section title="TestNet USDC payment">
+            <div className="grid gap-3 sm:grid-cols-[2fr_1fr]">
+              <label className="grid gap-1 text-sm">
+                <span className="text-slate-600">Destination (Stellar public key)</span>
+                <input
+                  value={destination}
+                  onChange={(event) => setDestination(event.target.value.trim())}
+                  placeholder="G..."
+                  className="rounded-lg border border-slate-300 px-3 py-2 font-mono text-sm"
+                />
+              </label>
+              <label className="grid gap-1 text-sm">
+                <span className="text-slate-600">Amount (USDC)</span>
+                <input
+                  value={amount}
+                  onChange={(event) => setAmount(event.target.value.trim())}
+                  inputMode="decimal"
+                  className="rounded-lg border border-slate-300 px-3 py-2 font-mono text-sm"
+                />
+              </label>
+            </div>
+            {!affordable && settlementBalance ? (
+              <p className="mt-2 text-sm text-amber-800">
+                Spendable USDC does not cover this amount.
+              </p>
+            ) : null}
+            <button
+              type="button"
+              onClick={() => void pay()}
+              disabled={!verified || !settlementAsset || busy === "pay"}
+              className="mt-4 rounded-lg bg-slate-950 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
+            >
+              {busy === "pay" ? "Submitting…" : "Send TestNet payment"}
+            </button>
+
+            {result ? (
+              <div className="mt-4 rounded-lg border border-slate-200 p-3 text-sm">
+                <Row label="Status" value={result.status} />
+                {result.status !== "error" ? (
+                  <>
+                    <Row label="Hash" value={result.hash} />
+                    <a
+                      className="mt-2 inline-block font-semibold text-emerald-800 underline"
+                      href={explorerUrl(result.hash, network)}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      View on Stellar Expert
+                    </a>
+                  </>
+                ) : (
+                  <p className="text-red-700">{result.message}</p>
+                )}
+              </div>
+            ) : null}
+          </Section>
+        </>
+      ) : (
+        <Section title="TestNet-only tools">
+          <p className="text-sm text-amber-800">
+            The faucet and the raw payment form are hidden because this build is pinned
+            to <strong>{MEDPASS_STELLAR_NETWORK}</strong>. A payment here would move
+            real funds with no confirmation. Use the product flow — open a charge on{" "}
+            <code className="font-mono">/charge</code> and pay it from the QR — which
+            states the amount and destination before anything is signed.
+          </p>
+        </Section>
+      )}
 
       <Section title="Transaction history">
         <Row label="History state" value={txHistory.step} />
