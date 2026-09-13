@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { ChargeScreen } from "./charge-screen";
 
 export const metadata: Metadata = {
-  title: "New charge — MedPass LATAM",
-  description: "Create a consultation charge and request only the context you need.",
+  title: "Nuevo cobro — MedPass LATAM",
+  description:
+    "Crea un cobro de consulta y pide solo el contexto de salud que necesitas.",
 };
 
 export default function ChargePage() {

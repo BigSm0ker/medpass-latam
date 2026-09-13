@@ -128,8 +128,33 @@ describe("toSettlementResult", () => {
   it("falls back to a readable message when Pollar returns no detail", () => {
     expect(toSettlementResult({ status: "error" })).toEqual({
       status: "error",
-      message: "The payment could not be completed.",
+      message: "El pago no pudo completarse.",
     });
+  });
+
+  // Regression: a structured payload reached the consent screen as the literal
+  // "[object Object]", which told the patient nothing and hid the cause from us.
+  it("renders a structured error payload instead of [object Object]", () => {
+    const result = toSettlementResult({
+      status: "error",
+      message: { code: "op_underfunded", hint: "not enough balance" },
+    } as unknown as Parameters<typeof toSettlementResult>[0]);
+
+    expect(result.status).toBe("error");
+    if (result.status !== "error") return;
+    expect(result.message).toContain("op_underfunded");
+    expect(result.message).not.toBe("[object Object]");
+  });
+
+  it("ignores a field that already stringified into [object Object]", () => {
+    const result = toSettlementResult({
+      status: "error",
+      message: "[object Object]",
+      details: "tx_failed",
+    } as unknown as Parameters<typeof toSettlementResult>[0]);
+
+    if (result.status !== "error") return;
+    expect(result.message).toBe("tx_failed");
   });
 });
 

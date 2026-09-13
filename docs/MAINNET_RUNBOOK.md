@@ -40,7 +40,11 @@ anyone offering to send XLM, before approval. Ask for approval first; send the a
 Once access is granted, switch the toggle to **MainNet**. The funding wallet address there is
 **different from the TestNet one**; sending to the TestNet address loses the funds.
 
-- [ ] Copied the MainNet funding wallet public key
+- [x] Copied the MainNet funding wallet public key —
+      `GB5JBZL3GBYDBP7PMJWLEOHJP7TDXGRIRE2AR3N5R67OVJWK6WN6EOD6`. Confirmed 2026-09-13: Horizon
+      mainnet returns 404 for it, which is correct — a Stellar account does not exist until its
+      first XLM arrives. Watch that same URL to see the funding land:
+      <https://horizon.stellar.org/accounts/GB5JBZL3GBYDBP7PMJWLEOHJP7TDXGRIRE2AR3N5R67OVJWK6WN6EOD6>
 - [ ] Funded it with XLM (Friendbot does not exist on Mainnet)
 - [ ] Balance confirmed on `https://horizon.stellar.org/accounts/<address>`
 

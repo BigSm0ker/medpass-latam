@@ -177,7 +177,14 @@ function ConsentFlow({ token }: { token: string }) {
       setReceipt({ status: outcome.status, hash: outcome.hash });
       setStage("done");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "El pago falló.");
+      // The patient gets a sentence; the console gets the whole object. A
+      // payment that fails on stage is only debuggable if the real shape of the
+      // failure survives somewhere, and it does not belong on the receipt.
+      console.error("[medpass] payment failed:", err);
+
+      const detail =
+        err instanceof Error ? err.message : typeof err === "string" ? err : "";
+      setError(detail && detail !== "[object Object]" ? detail : "El pago falló.");
     }
   }, [token, enabledAssets, sendPayment, network]);
 
@@ -219,8 +226,8 @@ function ConsentFlow({ token }: { token: string }) {
         <Card>
           <h3 className="text-lg font-semibold">Qué están pidiendo ver</h3>
           <p className="mt-1 mb-4 text-sm text-slate-600">
-            Todavía no se ha compartido nada. Desmarca lo que prefieras mantener
-            privado — puedes aprobar menos elementos de los que te pidieron.
+            Todavía no se ha compartido nada. Desmarca lo que prefieras mantener privado
+            — puedes aprobar menos elementos de los que te pidieron.
           </p>
 
           <ul className="grid gap-2">
