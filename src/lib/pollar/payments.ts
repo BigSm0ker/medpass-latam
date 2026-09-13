@@ -96,6 +96,30 @@ export type SettlementResult =
   | { status: "error"; message: string; hash?: string; code?: string };
 
 /**
+ * Renders an unknown error field as something a person can read.
+ *
+ * Pollar's error fields are typed as strings but do not always arrive as one:
+ * a structured payload reached the consent screen as the literal text
+ * "[object Object]", which told the patient nothing and hid the real failure
+ * from us too. Stringifying rather than trusting the type keeps the actual
+ * cause visible instead of swallowing it.
+ */
+function readableField(value: unknown): string | null {
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    return trimmed.length > 0 && trimmed !== "[object Object]" ? trimmed : null;
+  }
+  if (value === null || value === undefined) return null;
+
+  try {
+    const json = JSON.stringify(value);
+    return json && json !== "{}" && json !== "null" ? json : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Normalizes a raw `SubmitOutcome` into the product's result shape.
  *
  * The error branch composes whichever of Pollar's several optional error
@@ -112,10 +136,10 @@ export function toSettlementResult(outcome: SubmitOutcome): SettlementResult {
   }
 
   const message =
-    outcome.message ??
-    outcome.details ??
-    outcome.resultCode ??
-    "The payment could not be completed.";
+    readableField(outcome.message) ??
+    readableField(outcome.details) ??
+    readableField(outcome.resultCode) ??
+    "El pago no pudo completarse.";
 
   return {
     status: "error",
