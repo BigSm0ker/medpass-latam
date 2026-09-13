@@ -131,9 +131,24 @@ Por eso cambiar de red es configuración, no reescribir el producto. La trustlin
 aplicación — el usuario no paga esa reserva."_
 
 **1:35–1:55 — A payment through the SDK, honestly reported.**
-Send a small amount from the spike form. Show `Status` and `Hash`. _"`sendPayment` responde
-`success`, `pending` o `error`. Tratamos `pending` como pendiente: un recibo nunca afirma una
-liquidación que el ledger todavía no confirmó."_
+Send from the spike form. Use exactly these values — **do not improvise a destination on camera**:
+
+| Field       | Value                                                      |
+| ----------- | ---------------------------------------------------------- |
+| Destination | `GBXRPE4IWADDFKWRHQWMGXK3H7OE5JFM5AKS5SB4IMV2DCM4ULOUWM73` |
+| Amount      | `1`                                                        |
+
+That is the provider wallet, confirmed against Horizon on 2026-09-13 as holding an established,
+authorized USDC trustline. Stellar refuses a payment to any account without a trustline for that
+asset (`op_no_trust`), so a made-up address fails on camera. The stale balance does not block the
+send: the button is gated on `verified` and a resolved asset, not on the balance, and the
+"spendable does not cover" warning is suppressed while the balance object is null.
+
+Show `Status` and `Hash`. _"`sendPayment` responde `success`, `pending` o `error`. Tratamos
+`pending` como pendiente: un recibo nunca afirma una liquidación que el ledger todavía no
+confirmó."_ Worth adding, since the receiver holds zero XLM: _"el que recibe no tiene nada de XLM
+y aun así puede recibir USDC, porque la aplicación patrocina su reserva — por eso alguien que nunca
+tocó cripto puede cobrar."_
 
 **1:55–2:10 — Identity, and why SEP-53.**
 _"Pollar no expone verificación de tokens del lado del servidor, así que autenticamos haciendo que

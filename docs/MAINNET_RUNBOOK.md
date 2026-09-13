@@ -52,6 +52,23 @@ context.
 - [ ] Allowed origins include the production Vercel domain
 - [ ] **USDC enabled with the Mainnet issuer** — a different address from the TestNet one. Type the
       asset code by hand; a pasted leading space silently creates a different asset
+
+      The only correct Mainnet issuer is Circle's:
+
+      ```
+      GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN
+      ```
+
+      Verified against Horizon on 2026-09-13: its TOML resolves to
+      `https://circle.com/.well-known/stellar.toml`, with 2,397,661 authorized accounts and
+      ~310M USDC outstanding.
+
+      **Anyone can issue an asset called `USDC` on Stellar, and several people have.** The same
+      Horizon query returned impostors carrying the identical asset code — one with 426 accounts,
+      ~99 billion units, and a TOML hosted at `wxlmflip.com`. On TestNet a wrong issuer merely
+      fails to work. On Mainnet it is a real transfer of real money to a stranger, and it is
+      irreversible. Confirm the issuer against `circle.com` before enabling, never from memory and
+      never by picking `USDC` out of a list.
 - [ ] `Starting XLM balance` set to a non-zero value, or the first payment fails on fees
 - [ ] Publishable and secret keys copied for the Mainnet application
 
