@@ -86,6 +86,23 @@ describe("buildSettlementPayment", () => {
     expect(result.reason).toBe("invalid_destination");
   });
 
+  // Regression: Postgres numeric reaches this function as a JavaScript number,
+  // and the SDK rejects the payload with "expected string, received number" at
+  // submission time — in front of whoever is paying.
+  it("submits the amount as a string even when handed a number", () => {
+    const result = buildSettlementPayment({
+      destination: DESTINATION,
+      amount: 1 as unknown as string,
+      asset: USDC,
+      network: APPROVED,
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.params.amount).toBe("1");
+    expect(typeof result.params.amount).toBe("string");
+  });
+
   it("rejects a non-positive amount", () => {
     const result = buildSettlementPayment({
       destination: DESTINATION,

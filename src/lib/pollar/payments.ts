@@ -42,6 +42,12 @@ export function buildSettlementPayment(input: {
   asset: Pick<SettlementAsset, "code" | "issuer">;
   network: StellarNetwork;
 }): PaymentRequest | PaymentRejection {
+  // Coerced rather than trusted. The type says string, but this value has
+  // travelled from a Postgres `numeric` through JSON, and the SDK rejects a
+  // number outright — a failure that surfaces only at submission time, in front
+  // of whoever is paying.
+  const amount = String(input.amount);
+
   if (!isApprovedSpendNetwork(input.network)) {
     return {
       ok: false,
@@ -60,7 +66,7 @@ export function buildSettlementPayment(input: {
     };
   }
 
-  if (!isValidAmount(input.amount)) {
+  if (!isValidAmount(amount)) {
     return {
       ok: false,
       reason: "invalid_amount",
@@ -73,7 +79,7 @@ export function buildSettlementPayment(input: {
     params: {
       chain: "STELLAR",
       destination: input.destination,
-      amount: input.amount,
+      amount,
       asset: {
         type: "credit_alphanum4",
         code: input.asset.code,
