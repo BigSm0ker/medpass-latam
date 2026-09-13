@@ -52,7 +52,7 @@ function ConsentFlow({ token }: { token: string }) {
 
       if (!response.ok) {
         setStage("gone");
-        setError("This request was not found. Ask the provider for a new code.");
+        setError("No se encontró esta solicitud. Pide al proveedor un nuevo código.");
         return;
       }
 
@@ -62,7 +62,7 @@ function ConsentFlow({ token }: { token: string }) {
 
       if (view.expired && view.status === "requested") {
         setStage("gone");
-        setError("This request expired. Ask the provider for a new code.");
+        setError("Esta solicitud expiró. Pide al proveedor un nuevo código.");
       } else if (view.status === "paid") {
         setStage("done");
       } else {
@@ -103,12 +103,12 @@ function ConsentFlow({ token }: { token: string }) {
 
         if (!response.ok) {
           const body = await response.json().catch(() => ({}));
-          throw new Error(body.error ?? "Could not record your decision.");
+          throw new Error(body.error ?? "No se pudo registrar tu decisión.");
         }
 
         if (decision === "reject") {
           setStage("gone");
-          setError("You declined this request. Nothing was shared.");
+          setError("Rechazaste esta solicitud. No se compartió nada.");
           return;
         }
 
@@ -116,7 +116,7 @@ function ConsentFlow({ token }: { token: string }) {
       } catch (err) {
         setStage("review");
         setError(
-          err instanceof Error ? err.message : "Could not record your decision.",
+          err instanceof Error ? err.message : "No se pudo registrar tu decisión.",
         );
       }
     },
@@ -139,7 +139,7 @@ function ConsentFlow({ token }: { token: string }) {
       });
       if (!prep.ok) {
         const body = await prep.json().catch(() => ({}));
-        throw new Error(body.error ?? "Could not prepare the payment.");
+        throw new Error(body.error ?? "No se pudo preparar el pago.");
       }
       const { destination, amountUsdc } = (await prep.json()) as {
         destination: string;
@@ -150,7 +150,7 @@ function ConsentFlow({ token }: { token: string }) {
         enabledAssets.step === "loaded"
           ? findSettlementAsset(enabledAssets.data.assets)
           : null;
-      if (!asset) throw new Error("USDC is not available on this wallet yet.");
+      if (!asset) throw new Error("USDC no está disponible todavía en esta billetera.");
 
       const built = buildSettlementPayment({
         destination,
@@ -177,14 +177,14 @@ function ConsentFlow({ token }: { token: string }) {
       setReceipt({ status: outcome.status, hash: outcome.hash });
       setStage("done");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "The payment failed.");
+      setError(err instanceof Error ? err.message : "El pago falló.");
     }
   }, [token, enabledAssets, sendPayment, network]);
 
   if (stage === "loading") {
     return (
       <Card>
-        <p className="text-slate-600">Loading this request…</p>
+        <p className="text-slate-600">Cargando esta solicitud…</p>
       </Card>
     );
   }
@@ -203,10 +203,10 @@ function ConsentFlow({ token }: { token: string }) {
     <div className="grid gap-5">
       <Card>
         <p className="text-sm font-semibold tracking-[0.16em] text-emerald-700 uppercase">
-          Consultation request
+          Solicitud de consulta
         </p>
         <h2 className="mt-2 text-2xl font-semibold">
-          {request?.providerLabel ?? "A provider"}
+          {request?.providerLabel ?? "Un proveedor"}
         </h2>
         <p className="mt-1 text-slate-600">{request?.reason}</p>
         <p className="mt-5 text-4xl font-semibold tracking-tight">
@@ -217,10 +217,10 @@ function ConsentFlow({ token }: { token: string }) {
 
       {stage === "review" || stage === "consenting" ? (
         <Card>
-          <h3 className="text-lg font-semibold">What they are asking to see</h3>
+          <h3 className="text-lg font-semibold">Qué están pidiendo ver</h3>
           <p className="mt-1 mb-4 text-sm text-slate-600">
-            Nothing has been shared yet. Uncheck anything you would rather keep private
-            — you can approve fewer items than they asked for.
+            Todavía no se ha compartido nada. Desmarca lo que prefieras mantener
+            privado — puedes aprobar menos elementos de los que te pidieron.
           </p>
 
           <ul className="grid gap-2">
@@ -240,7 +240,7 @@ function ConsentFlow({ token }: { token: string }) {
           </ul>
 
           <p className="mt-4 text-xs text-slate-500">
-            Access lasts 30 minutes and you can withdraw it at any time.
+            El acceso dura 30 minutos y puedes retirarlo en cualquier momento.
           </p>
 
           {session.state.step !== "signed_in" ? (
@@ -252,7 +252,7 @@ function ConsentFlow({ token }: { token: string }) {
                 walletAddress={session.walletAddress}
                 onOpenLogin={session.openLoginModal}
                 onProve={() => void session.proveIdentity()}
-                purpose="Sign in to approve this request and pay."
+                purpose="Inicia sesión para aprobar esta solicitud y pagar."
               />
             </div>
           ) : (
@@ -264,8 +264,8 @@ function ConsentFlow({ token }: { token: string }) {
                 className="rounded-xl bg-emerald-700 px-5 py-2.5 font-semibold text-white disabled:opacity-40"
               >
                 {stage === "consenting"
-                  ? "Sharing…"
-                  : `Share ${approved.length} and continue`}
+                  ? "Compartiendo…"
+                  : `Compartir ${approved.length} y continuar`}
               </button>
               <button
                 type="button"
@@ -273,7 +273,7 @@ function ConsentFlow({ token }: { token: string }) {
                 disabled={stage === "consenting"}
                 className="rounded-xl border border-slate-300 px-5 py-2.5 font-semibold disabled:opacity-40"
               >
-                Decline
+                Rechazar
               </button>
             </div>
           )}
@@ -288,16 +288,16 @@ function ConsentFlow({ token }: { token: string }) {
 
       {stage === "paying" ? (
         <Card>
-          <h3 className="text-lg font-semibold">Pay the consultation</h3>
+          <h3 className="text-lg font-semibold">Pagar la consulta</h3>
           <p className="mt-1 text-sm text-slate-600">
-            Your information is now visible to the provider for 30 minutes.
+            Tu información ahora es visible para el proveedor durante 30 minutos.
           </p>
           <button
             type="button"
             onClick={() => void pay()}
             className="mt-5 rounded-xl bg-slate-950 px-5 py-2.5 font-semibold text-white"
           >
-            Pay {request?.amountUsdc} USDC
+            Pagar {request?.amountUsdc} USDC
           </button>
           {error ? (
             <p role="alert" className="mt-4 font-medium text-red-700">
@@ -310,12 +310,12 @@ function ConsentFlow({ token }: { token: string }) {
       {stage === "done" ? (
         <Card>
           <h3 className="text-lg font-semibold text-emerald-800">
-            {receipt?.status === "pending" ? "Payment submitted" : "Payment complete"}
+            {receipt?.status === "pending" ? "Pago enviado" : "Pago completado"}
           </h3>
           <p className="mt-1 text-sm text-slate-600">
             {receipt?.status === "pending"
-              ? "The network accepted it and is still confirming."
-              : "The provider has received your payment."}
+              ? "La red lo aceptó y aún se está confirmando."
+              : "El proveedor recibió tu pago."}
           </p>
           {receipt?.hash ? (
             <a
@@ -324,7 +324,7 @@ function ConsentFlow({ token }: { token: string }) {
               target="_blank"
               rel="noreferrer"
             >
-              Verify this transaction
+              Verificar esta transacción
             </a>
           ) : null}
         </Card>
@@ -346,7 +346,7 @@ export function ConsentScreen({ token }: { token: string }) {
           </header>
           <ConsentFlow token={token} />
           <p className="text-center text-xs text-slate-500">
-            All records are fictitious. This prototype is not for clinical use.
+            Todos los registros son ficticios. Este prototipo no es para uso clínico.
           </p>
         </div>
       </main>

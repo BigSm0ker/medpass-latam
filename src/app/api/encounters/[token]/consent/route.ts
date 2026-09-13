@@ -11,7 +11,7 @@ export async function POST(
   const session = await getSession();
   if (!session) {
     return NextResponse.json(
-      { error: "Sign in to answer this request." },
+      { error: "Inicia sesión para responder a esta solicitud." },
       { status: 401 },
     );
   }
@@ -22,18 +22,18 @@ export async function POST(
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: "Malformed request body." }, { status: 400 });
+    return NextResponse.json({ error: "Cuerpo de solicitud inválido." }, { status: 400 });
   }
 
   const parsed = consentSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid consent decision." }, { status: 422 });
+    return NextResponse.json({ error: "Decisión de consentimiento inválida." }, { status: 422 });
   }
 
   const messages: Record<string, string> = {
-    not_found: "This request was not found.",
-    expired: "This request expired. Ask the provider for a new one.",
-    already_answered: "This request was already answered.",
+    not_found: "No se encontró esta solicitud.",
+    expired: "Esta solicitud expiró. Pide al proveedor un nuevo código.",
+    already_answered: "Esta solicitud ya fue respondida.",
   };
 
   try {
@@ -58,7 +58,7 @@ export async function POST(
       error instanceof Error ? error.message : "unknown",
     );
     return NextResponse.json(
-      { error: "Could not record your decision." },
+      { error: "No se pudo registrar tu decisión." },
       { status: 503 },
     );
   }

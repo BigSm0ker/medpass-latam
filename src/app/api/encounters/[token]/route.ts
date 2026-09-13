@@ -19,7 +19,7 @@ export async function GET(
     const view = await getRequestView(token);
     if (!view)
       return NextResponse.json(
-        { error: "This request was not found." },
+        { error: "No se encontró esta solicitud." },
         { status: 404 },
       );
 
@@ -30,7 +30,7 @@ export async function GET(
       error instanceof Error ? error.message : "unknown",
     );
     return NextResponse.json(
-      { error: "Could not load this request." },
+      { error: "No se pudo cargar esta solicitud." },
       { status: 503 },
     );
   }

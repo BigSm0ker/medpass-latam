@@ -7,7 +7,7 @@ describe("PrototypeNotice", () => {
     render(<PrototypeNotice />);
 
     expect(screen.getByRole("note")).toHaveTextContent(
-      "Hackathon prototype — not for clinical use",
+      "Prototipo de hackathon — no apto para uso clínico",
     );
   });
 });

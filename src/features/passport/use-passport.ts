@@ -40,7 +40,7 @@ export function usePassport() {
       const body = await response.json().catch(() => ({}));
       setState({
         step: "error",
-        message: body.error ?? "Could not load your passport.",
+        message: body.error ?? "No se pudo cargar tu pasaporte.",
       });
       return;
     }
@@ -65,7 +65,7 @@ export function usePassport() {
     setState({ step: "proving" });
     try {
       const challenge = await fetch("/api/auth/challenge", { cache: "no-store" });
-      if (!challenge.ok) throw new Error("Could not start sign-in.");
+      if (!challenge.ok) throw new Error("No se pudo iniciar el proceso de acceso.");
       const { message, token } = (await challenge.json()) as {
         message: string;
         token: string;
@@ -73,7 +73,7 @@ export function usePassport() {
 
       const proof = await getClient().stellar.sep53.signMessage(message);
       if (proof.status !== "signed") {
-        throw new Error(proof.details ?? "Your wallet did not sign the request.");
+        throw new Error(proof.details ?? "Tu billetera no firmó la solicitud.");
       }
 
       const verify = await fetch("/api/auth/verify", {
@@ -88,7 +88,7 @@ export function usePassport() {
 
       if (!verify.ok) {
         const body = await verify.json().catch(() => ({}));
-        throw new Error(body.error ?? "Sign-in could not be verified.");
+        throw new Error(body.error ?? "No se pudo verificar el inicio de sesión.");
       }
 
       const body = (await verify.json()) as { address: string };
@@ -97,7 +97,7 @@ export function usePassport() {
     } catch (error) {
       setState({
         step: "error",
-        message: error instanceof Error ? error.message : "Sign-in failed.",
+        message: error instanceof Error ? error.message : "Falló el inicio de sesión.",
       });
     }
   }, [verified, wallet?.address, getClient, load]);
@@ -132,7 +132,7 @@ export function usePassport() {
 
       if (!response.ok) {
         const body = await response.json().catch(() => ({}));
-        throw new Error(body.error ?? "Could not save your passport.");
+        throw new Error(body.error ?? "No se pudo guardar tu pasaporte.");
       }
 
       const body = (await response.json()) as {
@@ -145,7 +145,7 @@ export function usePassport() {
       return {
         ok: false as const,
         message:
-          error instanceof Error ? error.message : "Could not save your passport.",
+          error instanceof Error ? error.message : "No se pudo guardar tu pasaporte.",
       };
     } finally {
       setSaving(false);

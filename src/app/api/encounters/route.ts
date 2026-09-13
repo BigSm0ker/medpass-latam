@@ -7,7 +7,7 @@ import { createEncounter } from "@/features/encounters/service";
 export async function POST(request: Request) {
   const session = await getSession();
   if (!session) {
-    return NextResponse.json({ error: "Sign in to create a charge." }, { status: 401 });
+    return NextResponse.json({ error: "Inicia sesión para crear un cobro." }, { status: 401 });
   }
 
   let body: unknown;
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
   if (!parsed.success) {
     return NextResponse.json(
       {
-        error: "Check the amount, reason and requested fields.",
+        error: "Revisa el monto, el motivo y los campos solicitados.",
         issues: parsed.error.issues.map((issue) => issue.path.join(".")),
       },
       { status: 422 },
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
       error instanceof Error ? error.message : "unknown",
     );
     return NextResponse.json(
-      { error: "Could not create the charge." },
+      { error: "No se pudo crear el cobro." },
       { status: 503 },
     );
   }

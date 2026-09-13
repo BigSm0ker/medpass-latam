@@ -198,6 +198,38 @@ the application's own UI.
 confirmed receipt is available immediately. Phase 4 must still handle `pending`, since the SDK
 types allow it and network conditions can produce it.
 
+## `existsOnStellar` goes stale against the ledger — observed 2026-09-13
+
+The spike page reported `Exists on Stellar: false` and empty `USDC held` / `USDC spendable` for
+`GD2IOJAIUM6VBYHXXOXP3OMG7XPPH3MR2SQOAM6JKTTEHHDIEYEXG7P4` — the same wallet that had already sent
+the confirmed payment above. Horizon, read directly, disagreed on every point:
+
+| Field                  | Spike page (SDK)     | Horizon (ledger)                                           |
+| ---------------------- | -------------------- | ---------------------------------------------------------- |
+| Account exists         | `false`              | exists — `last_modified_ledger: 4633398`                    |
+| USDC balance           | `—`                  | `19.0000000` USDC, issuer `GBBD47IF6…FLA5`, `is_authorized` |
+| XLM balance            | not shown            | `9999.9999900` native                                       |
+| Trustline              | `established (sponsored)` | `subentry_count: 1`, `num_sponsored: 3`                |
+| Sponsor                | not shown            | `GCGWO4V2JTH3PZSLFGHNCMMVGN7WO4KYPVOEUMICWQ3EOEEBWLLG7F3N`  |
+
+Note which row was *right*: the trustline. It comes from the enabled-asset catalog
+(`refreshAssets`), a different source from the wallet object, and it matched the ledger. Only the
+fields carried on the wallet object itself were stale.
+
+So `wallet.existsOnStellar` is a snapshot taken when the wallet object is issued, not a live read,
+and a session restored from browser storage can carry a snapshot from before the account was
+funded. `refreshWalletBalance()` does not appear to refresh it; signing out and back in does.
+
+The earlier entry under *Live TestNet observations* reads `existsOnStellar: false — deferred
+funding`. That diagnosis was right for that moment — the account genuinely did not exist yet — but
+it should not be read as meaning the field tracks the ledger afterwards. It does not.
+
+**Consequence.** Treat `existsOnStellar` and SDK-reported balances as hints for UI, never as proof
+of on-chain state, and never as a precondition the product blocks on. Horizon is the source of
+truth for every claim this project makes, which is already the rule every acceptance table in this
+document follows. Worth restating before the Mainnet cutover: a stale `false` there must not be
+mistaken for an unfunded Mainnet wallet.
+
 ## Setup sequence that actually works
 
 Discovered empirically; each step blocks the next, and skipping one produces a misleading error.

@@ -21,11 +21,11 @@ export type PassportField = z.infer<typeof passportFieldSchema>;
 
 /** Labels, so a patient is never asked to approve a database column name. */
 export const FIELD_LABELS: Record<PassportField, string> = {
-  blood_type: "Blood type",
-  allergies: "Critical allergies",
-  medications: "Current medications",
-  conditions: "Relevant conditions",
-  emergency_contact: "Emergency contact",
+  blood_type: "Tipo de sangre",
+  allergies: "Alergias críticas",
+  medications: "Medicamentos actuales",
+  conditions: "Condiciones relevantes",
+  emergency_contact: "Contacto de emergencia",
 };
 
 export const ENCOUNTER_STATUSES = [
@@ -128,6 +128,24 @@ export function projectPassport(
 
   return disclosed;
 }
+
+/**
+ * One row of a provider's charge history.
+ *
+ * A thin, display-only projection — never health data, just enough to show that
+ * the product is used repeatedly and to link each payment to its on-chain proof.
+ */
+export type EncounterHistoryItem = {
+  token: string;
+  providerLabel: string | null;
+  reason: string | null;
+  amountUsdc: string;
+  status: EncounterStatus;
+  requestedFields: PassportField[];
+  approvedFields: PassportField[];
+  createdAt: string;
+  payment: { status: "pending" | "success" | "error"; txHash: string | null } | null;
+};
 
 /**
  * Whether a consent still authorizes disclosure right now.

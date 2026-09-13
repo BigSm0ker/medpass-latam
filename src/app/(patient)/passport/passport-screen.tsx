@@ -16,7 +16,7 @@ function Shell({ children }: { children: React.ReactNode }) {
               MedPass LATAM
             </p>
             <h1 className="mt-1 text-3xl font-semibold tracking-tight">
-              Medical passport
+              Pasaporte médico
             </h1>
           </div>
           <PrototypeNotice />
@@ -54,11 +54,11 @@ function Inner() {
         {state.step === "signed_out" ? (
           <div className="grid gap-4">
             <div>
-              <h2 className="text-xl font-semibold">Your passport is private</h2>
+              <h2 className="text-xl font-semibold">Tu pasaporte es privado</h2>
               <p className="mt-2 text-slate-600">
-                Sign in with your wallet, then sign a one-time message so this server
-                can confirm the wallet is yours. The signature authorizes no payment and
-                moves no funds.
+                Inicia sesión con tu billetera y luego firma un mensaje único para
+                que este servidor confirme que la billetera es tuya. La firma no
+                autoriza ningún pago ni mueve fondos.
               </p>
             </div>
             {!isAuthenticated ? (
@@ -67,7 +67,7 @@ function Inner() {
                 onClick={openLoginModal}
                 className="justify-self-start rounded-xl bg-slate-950 px-5 py-2.5 font-semibold text-white"
               >
-                Sign in with Pollar
+                Iniciar sesión con Pollar
               </button>
             ) : (
               <button
@@ -76,7 +76,7 @@ function Inner() {
                 disabled={!pollarReady}
                 className="justify-self-start rounded-xl bg-slate-950 px-5 py-2.5 font-semibold text-white disabled:opacity-40"
               >
-                {pollarReady ? "Confirm it's you" : "Confirming your session…"}
+                {pollarReady ? "Confirmar que eres tú" : "Confirmando tu sesión…"}
               </button>
             )}
             {walletAddress ? (
@@ -88,11 +88,11 @@ function Inner() {
         ) : null}
 
         {state.step === "proving" ? (
-          <p className="text-slate-600">Waiting for your wallet signature…</p>
+          <p className="text-slate-600">Esperando la firma de tu billetera…</p>
         ) : null}
 
         {state.step === "loading" ? (
-          <p className="text-slate-600">Loading your passport…</p>
+          <p className="text-slate-600">Cargando tu pasaporte…</p>
         ) : null}
 
         {state.step === "error" ? (
@@ -105,7 +105,7 @@ function Inner() {
               onClick={() => void proveIdentity()}
               className="justify-self-start rounded-xl border border-slate-300 px-4 py-2 font-semibold"
             >
-              Try again
+              Intentar de nuevo
             </button>
           </div>
         ) : null}
@@ -114,14 +114,14 @@ function Inner() {
           <div className="grid gap-6">
             <div className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-200 pb-4">
               <div>
-                <p className="text-sm text-slate-500">Signed in as</p>
+                <p className="text-sm text-slate-500">Sesión iniciada como</p>
                 <p className="font-mono text-xs break-all text-slate-800">
                   {serverAddress}
                 </p>
                 <p className="mt-1 text-xs text-slate-500">
                   {state.updatedAt
-                    ? `Last saved ${new Date(state.updatedAt).toLocaleString()}`
-                    : "Not saved yet — fill this in to create your passport."}
+                    ? `Guardado por última vez ${new Date(state.updatedAt).toLocaleString()}`
+                    : "Aún no se ha guardado — complétalo para crear tu pasaporte."}
                 </p>
               </div>
               <button
@@ -129,7 +129,7 @@ function Inner() {
                 onClick={() => void signOut()}
                 className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold"
               >
-                Sign out
+                Cerrar sesión
               </button>
             </div>
             <PassportForm
@@ -143,8 +143,8 @@ function Inner() {
       </Card>
 
       <p className="text-center text-xs text-slate-500">
-        All records are fictitious. This prototype is not for clinical use and makes no
-        medical claims.
+        Todos los registros son ficticios. Este prototipo no es para uso clínico
+        y no hace ninguna afirmación médica.
       </p>
     </Shell>
   );

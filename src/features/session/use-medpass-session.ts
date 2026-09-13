@@ -69,7 +69,7 @@ export function useMedPassSession() {
     setState({ step: "proving" });
     try {
       const challenge = await fetch("/api/auth/challenge", { cache: "no-store" });
-      if (!challenge.ok) throw new Error("Could not start sign-in.");
+      if (!challenge.ok) throw new Error("No se pudo iniciar el proceso de acceso.");
       const { message, token } = (await challenge.json()) as {
         message: string;
         token: string;
@@ -77,7 +77,7 @@ export function useMedPassSession() {
 
       const proof = await getClient().stellar.sep53.signMessage(message);
       if (proof.status !== "signed") {
-        throw new Error(proof.details ?? "Your wallet did not sign the request.");
+        throw new Error(proof.details ?? "Tu billetera no firmó la solicitud.");
       }
 
       const verify = await fetch("/api/auth/verify", {
@@ -92,7 +92,7 @@ export function useMedPassSession() {
 
       if (!verify.ok) {
         const body = await verify.json().catch(() => ({}));
-        throw new Error(body.error ?? "Sign-in could not be verified.");
+        throw new Error(body.error ?? "No se pudo verificar el inicio de sesión.");
       }
 
       const body = (await verify.json()) as { address: string };
@@ -100,7 +100,7 @@ export function useMedPassSession() {
     } catch (error) {
       setState({
         step: "error",
-        message: error instanceof Error ? error.message : "Sign-in failed.",
+        message: error instanceof Error ? error.message : "Falló el inicio de sesión.",
       });
     }
   }, [verified, wallet?.address, getClient]);

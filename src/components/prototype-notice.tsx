@@ -4,7 +4,7 @@ export function PrototypeNotice() {
       role="note"
       className="rounded-full border border-amber-300/70 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-950"
     >
-      Hackathon prototype — not for clinical use
+      Prototipo de hackathon — no apto para uso clínico
     </p>
   );
 }

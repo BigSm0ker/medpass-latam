@@ -24,15 +24,15 @@ function fromLines(value: string): string[] {
 const listFields = [
   {
     key: "allergies",
-    label: "Critical allergies",
-    hint: "One per line, e.g. Penicillin",
+    label: "Alergias críticas",
+    hint: "Una por línea, ej. Penicilina",
   },
   {
     key: "medications",
-    label: "Current medications",
-    hint: "One per line, with dose if known",
+    label: "Medicamentos actuales",
+    hint: "Uno por línea, con la dosis si la conoces",
   },
-  { key: "conditions", label: "Relevant conditions", hint: "One per line" },
+  { key: "conditions", label: "Condiciones relevantes", hint: "Una por línea" },
 ] as const;
 
 export function PassportForm({
@@ -59,8 +59,8 @@ export function PassportForm({
     const result = await onSave(draft);
     setFeedback(
       result.ok
-        ? { tone: "ok", message: "Passport saved." }
-        : { tone: "error", message: result.message ?? "Could not save." },
+        ? { tone: "ok", message: "Pasaporte guardado." }
+        : { tone: "error", message: result.message ?? "No se pudo guardar." },
     );
   }
 
@@ -68,7 +68,7 @@ export function PassportForm({
     <form onSubmit={handleSubmit} className="grid gap-6">
       <div className="grid gap-2 sm:max-w-xs">
         <label htmlFor="bloodType" className="text-sm font-semibold text-slate-700">
-          Blood type
+          Tipo de sangre
         </label>
         <select
           id="bloodType"
@@ -106,11 +106,11 @@ export function PassportForm({
 
       <fieldset className="grid gap-4 rounded-2xl border border-slate-200 p-4 sm:grid-cols-2">
         <legend className="px-1 text-sm font-semibold text-slate-700">
-          Emergency contact
+          Contacto de emergencia
         </legend>
         <div className="grid gap-2">
           <label htmlFor="ecName" className="text-sm text-slate-600">
-            Name
+            Nombre
           </label>
           <input
             id="ecName"
@@ -123,7 +123,7 @@ export function PassportForm({
         </div>
         <div className="grid gap-2">
           <label htmlFor="ecPhone" className="text-sm text-slate-600">
-            Phone
+            Teléfono
           </label>
           <input
             id="ecPhone"
@@ -139,7 +139,7 @@ export function PassportForm({
 
       <div className="grid gap-2">
         <label htmlFor="notes" className="text-sm font-semibold text-slate-700">
-          Notes
+          Notas
         </label>
         <textarea
           id="notes"
@@ -158,7 +158,7 @@ export function PassportForm({
           disabled={saving}
           className="rounded-xl bg-slate-950 px-5 py-2.5 font-semibold text-white disabled:opacity-40"
         >
-          {saving ? "Saving…" : "Save passport"}
+          {saving ? "Guardando…" : "Guardar pasaporte"}
         </button>
         {feedback ? (
           <p
