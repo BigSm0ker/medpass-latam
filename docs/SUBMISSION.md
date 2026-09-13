@@ -12,13 +12,13 @@ Everything the bounty asks for, drafted and ready to paste into the Telegram gro
 - [ ] Mainnet transaction hash — pending access approval (`docs/MAINNET_RUNBOOK.md`)
 - [ ] Vaquita account to receive the prize
 
-## Description (298 words — the limit is 300)
+## Description (300 words — the limit is 300)
 
 **MedPass LATAM — Pay the clinic in seconds. Share only what the doctor needs.**
 
-In much of Latin America a consultation is still settled in cash. The neighbourhood clinic has no
-card terminal, the traveller has no local account, or the person paying is family abroad. At the same moment, the provider is treating someone whose allergies, current
-medications and conditions they cannot see.
+In much of Latin America a consultation is still settled in cash. The clinic has no card
+terminal, or the person paying is family abroad. At the same moment, the provider is treating
+someone whose allergies and current medications they cannot see.
 
 MedPass treats those as one moment: a charge that carries consent.
 
@@ -28,16 +28,15 @@ approve a subset — three of five items, or none at all — and pay in USDC thr
 provider receives only what was approved, for a limited time, and can be cut off at any moment. Health data never touches the blockchain; only the payment does.
 
 Pollar does two jobs here. It moves the money: `sendPayment` settles USDC on Stellar, with the
-issuer resolved at runtime from the app's asset catalog, so changing networks is configuration, not
-code. And it is the identity. The SDK exposes no server-side token
-verification, so we authenticate users by having the wallet sign a server-issued challenge with
-SEP-53 and verifying that ed25519 signature against the Stellar address. The wallet is who you are,
-not just how you pay — and because Pollar handles onboarding, a patient who has never held a wallet
-signs in with Google.
+issuer resolved at runtime from the app's asset catalog. And it is the identity: the SDK exposes no
+server-side token verification, so we authenticate users by having the wallet sign a server-issued
+challenge with SEP-53, verified against the Stellar address. The wallet is who you are, not just how
+you pay — and Pollar's onboarding means a patient who has never held a wallet signs in with Google.
 
-Authorization is enforced on the server throughout: disclosure is an allow-list projection, the
-payment destination and amount are never read from the browser, and the database refuses any record
-not marked synthetic.
+Authorization runs entirely on the server: disclosure is an allow-list projection, the payment
+destination and amount are never read from the browser, and the database refuses any record not
+marked synthetic. Every charge lands in a history view linking to its on-chain proof — built for a
+clinic's daily shift, not a one-off demo.
 
 All medical records are fictitious. This is a prototype, not a clinical system.
 
@@ -67,9 +66,12 @@ own."
 **2:00–2:35 — Payment.** Back on the phone, pay. Show the receipt and open the explorer link. "One
 USDC, settled on Stellar through Pollar, verifiable by anyone."
 
-**2:35–3:00 — Why it can grow.** "Pollar handles the wallet, so a patient who has never touched
+**2:35–3:00 — Why it can grow.** Scroll to the charge history on `/charge`. "Every charge she's
+created is here, with its status and a link to verify the payment on-chain — this is a tool she
+opens every shift, not a one-off demo. Pollar handles the wallet, so a patient who has never touched
 crypto signs in with Google. We also use Pollar's SEP-53 signing as our server-side login — the
-wallet is the identity. Any clinic can start charging this way without integrating anything."
+wallet is the identity. Any clinic in the region can start charging this way without integrating
+anything."
 
 ### Recording notes
 

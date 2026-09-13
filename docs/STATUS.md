@@ -1,7 +1,8 @@
 # Project status
 
 - **Current phase:** Phase 4 — Qualification (agent-side work complete; owner actions pending)
-- **Current branch:** `develop` (Phases 2 and 3 merged via PR #5; `main` is the production branch)
+- **Current branch:** `feature/judge-experience`, branched from `develop` (Phases 2 and 3 merged via
+  PR #5; `main` is the production branch)
 - **Completed:** Phase 0 foundation. Phase 1: verified the real `0.11.3` API surface from installed
   declarations; typed client/server environment boundary with a browser-import guard; centralized
   Pollar adapter (`config`, `assets`, `payments`, `funding`, `provider`) pinned to TestNet;
@@ -17,9 +18,29 @@
 
 - **Blocked:** nothing on the agent side. Both Supabase migrations are applied and `npm run ci`
   passes on a clean checkout of `develop` with no environment variables. What remains is external:
-  the Vercel deployment (owner's account) and **Mainnet access, still "Under review" with a stated
-  two-business-day turnaround that lands after the Sunday deadline** — the single largest risk to
-  the submission.
+  the Vercel deployment (owner's account, already live) and **Mainnet access, still "Under review"**
+  — the single largest risk to the submission.
+
+- **Judge-experience pass (`feature/judge-experience`, branched from `develop`):** aimed squarely at
+  the rubric (Impact 30%, Potential 25%, Pollar integration 25%, Real transactions 20%) rather than
+  at a new phase.
+  - **Real transactions:** unchanged in mechanism — both provider and patient screens already linked
+    every settled payment to a public Stellar explorer; this pass keeps that intact everywhere it
+    reads a payment status.
+  - **Potential:** added a provider charge history (`listEncountersForProvider`, `GET
+    /api/encounters/history`, rendered on `/charge`) — past charges with their approved/requested
+    field counts, status and a link to the on-chain proof, so a judge sees a tool meant for daily use
+    rather than a single staged charge.
+  - **Impact:** localized the entire user-facing surface — landing page, provider console, patient
+    consent flow, passport screen, sign-in gate, and every API error message a screen can show — to
+    Spanish, since the product and its judges are LATAM-first.
+  - Sharpened `docs/SUBMISSION.md`'s description and demo script to call out the history view as
+    evidence of recurring use.
+  - Verified with `npx tsc --noEmit` (clean) and `npx eslint` over every changed file (clean) from
+    this session; `npm run test` and `npm run build` were **not** run here because this session's
+    Linux shell shares this Windows checkout's `node_modules`, which only has Windows-native optional
+    dependencies installed (a known cross-platform npm limitation, not a code issue) — run `npm run
+    ci` locally before merging.
 
 - **Repository:** <https://github.com/BigSm0ker/medpass-latam> is public; `develop` is the default
   collaboration branch and `main` is protected against direct changes, force-push, and deletion.
