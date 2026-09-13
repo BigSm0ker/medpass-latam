@@ -79,3 +79,57 @@ anything."
 - Have a second account signed in and its USDC trustline established beforehand.
 - Do not show the Pollar dashboard, any key, or any `.env` file.
 - If the payment returns `pending`, say so — the receipt distinguishes it from `success` on purpose.
+
+
+## Backup evidence video — 2 minutes (supplementary, not the required demo)
+
+Insurance against the Mainnet risk, and the strongest available answer to the *Pollar integration*
+(25%) and *Real transactions* (20%) criteria. The required 3-minute demo above stays
+product-focused; this one is shorter, technical, and shows the integration from the inside.
+
+Spoken lines are in Spanish here because the judges are local and the product ships in Spanish;
+adjust if submitting in English.
+
+**Before recording**
+
+- `/spike/pollar` is **removed from production builds** (`notFound()` when `NODE_ENV=production`),
+  so it 404s on the Vercel URL. Record it from `npm run dev` on `localhost:3000`.
+- Use a clean browser window. Close personal tabs — mail, chat, anything with a name in it.
+- Never on camera: the Pollar dashboard, API keys, `.env.local`, or a terminal that echoes them.
+- Open the explorer link once before recording and confirm it loads.
+
+**0:00–0:25 — The ledger, not our word for it.**
+Open `https://stellar.expert/explorer/testnet/tx/5ce00279e8883b8e59a361e592a1c9c7de2dac717b7b14bf1212a60bf8e0f3f6`.
+Point at the amount, the sender, the receiver, the ledger number. _"Esto no es nuestra aplicación
+diciendo que funcionó. Es el ledger público de Stellar. Un USDC, de esta cuenta a esta otra,
+ledger 4633398."_
+
+**0:25–1:05 — The Pollar session is a real Stellar identity.**
+On `/spike/pollar`, walk down the session panel. _"`Authenticated` es la sesión del navegador.
+`Server verified` es la que importa: nuestro servidor verificó la firma de la billetera, no le
+cree al navegador. La red está fijada en código, no en una variable de entorno, para que ningún
+despliegue la cambie por accidente. Y `Exists on Stellar: true` significa que esta cuenta existe
+de verdad en el ledger, no es un identificador de mentira."_
+
+**1:05–1:30 — The asset catalog resolves at runtime.**
+Show *Balance and assets*: the USDC issuer, the trustline, the balance. _"El emisor del USDC nunca
+está escrito a mano en el código: sale del catálogo de activos de Pollar en tiempo de ejecución.
+Por eso cambiar de red es configuración, no reescribir el producto. La trustline la patrocina la
+aplicación — el usuario no paga esa reserva."_
+
+**1:30–1:55 — A payment through the SDK, honestly reported.**
+Send a small amount from the spike form. Show `Status` and `Hash`. _"`sendPayment` responde
+`success`, `pending` o `error`. Tratamos `pending` como pendiente: un recibo nunca afirma una
+liquidación que el ledger todavía no confirmó."_
+
+**1:55–2:10 — Identity, and why SEP-53.**
+_"Pollar no expone verificación de tokens del lado del servidor, así que autenticamos haciendo que
+la billetera firme un desafío emitido por nuestro servidor con SEP-53, y verificamos esa firma
+ed25519 contra la dirección Stellar. La billetera es quién eres, no solo cómo pagas."_
+
+**If Mainnet did not happen by the deadline**
+
+Say it plainly, once, at the end: access was requested on 2026-09-11, granted on 2026-09-13, and
+state exactly how far the Mainnet cutover got. Do not imply a Mainnet transaction occurred. The
+procedure is a committed, reviewable diff in `docs/MAINNET_RUNBOOK.md`; an honest gap costs less
+than a claim that fails a click on an explorer link.
