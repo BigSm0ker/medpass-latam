@@ -94,7 +94,7 @@ describe("buildSettlementPayment", () => {
       destination: DESTINATION,
       amount: 1 as unknown as string,
       asset: USDC,
-      network: APPROVED,
+      network: "testnet",
     });
 
     expect(result.ok).toBe(true);
