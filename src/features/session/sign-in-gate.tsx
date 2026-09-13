@@ -1,5 +1,6 @@
 "use client";
 
+import { useCopy } from "@/lib/i18n";
 import type { SessionState } from "./use-medpass-session";
 
 /**
@@ -26,6 +27,8 @@ export function SignInGate({
   onProve: () => void;
   purpose: string;
 }) {
+  const copy = useCopy();
+
   return (
     <div className="grid gap-4">
       <p className="text-slate-600">{purpose}</p>
@@ -42,7 +45,7 @@ export function SignInGate({
           onClick={onOpenLogin}
           className="justify-self-start rounded-xl bg-slate-950 px-5 py-2.5 font-semibold text-white"
         >
-          Iniciar sesión con Pollar
+          {copy.signIn.withPollar}
         </button>
       ) : (
         <button
@@ -52,17 +55,14 @@ export function SignInGate({
           className="justify-self-start rounded-xl bg-slate-950 px-5 py-2.5 font-semibold text-white disabled:opacity-40"
         >
           {state.step === "proving"
-            ? "Esperando tu billetera…"
+            ? copy.signIn.waitingWallet
             : pollarReady
-              ? "Confirmar que eres tú"
-              : "Confirmando tu sesión…"}
+              ? copy.signIn.confirmIdentity
+              : copy.signIn.confirmingSession}
         </button>
       )}
 
-      <p className="text-xs text-slate-500">
-        Firmar demuestra que controlas esta billetera. No autoriza ningún pago ni
-        mueve fondos.
-      </p>
+      <p className="text-xs text-slate-500">{copy.signIn.signatureNote}</p>
 
       {walletAddress ? (
         <p className="font-mono text-xs break-all text-slate-400">{walletAddress}</p>

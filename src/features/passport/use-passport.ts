@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { usePollar } from "@pollar/react";
+import { useCopyRef } from "@/lib/i18n";
 import { emptyPassport, type Passport } from "@/schemas/passport";
 
 type LoadState =
@@ -21,6 +22,7 @@ type LoadState =
  * fetch anything.
  */
 export function usePassport() {
+  const copy = useCopyRef();
   const { isAuthenticated, verified, wallet, getClient } = usePollar();
   const [state, setState] = useState<LoadState>({ step: "signed_out" });
   const [saving, setSaving] = useState(false);
@@ -40,7 +42,7 @@ export function usePassport() {
       const body = await response.json().catch(() => ({}));
       setState({
         step: "error",
-        message: body.error ?? "No se pudo cargar tu pasaporte.",
+        message: body.error ?? copy.current.passport.couldNotLoad,
       });
       return;
     }
@@ -50,7 +52,7 @@ export function usePassport() {
       updatedAt: string | null;
     };
     setState({ step: "ready", passport: body.passport, updatedAt: body.updatedAt });
-  }, []);
+  }, [copy]);
 
   /**
    * Exchanges a wallet signature for a server session.
@@ -65,7 +67,7 @@ export function usePassport() {
     setState({ step: "proving" });
     try {
       const challenge = await fetch("/api/auth/challenge", { cache: "no-store" });
-      if (!challenge.ok) throw new Error("No se pudo iniciar el proceso de acceso.");
+      if (!challenge.ok) throw new Error(copy.current.session.couldNotStart);
       const { message, token } = (await challenge.json()) as {
         message: string;
         token: string;
@@ -73,7 +75,7 @@ export function usePassport() {
 
       const proof = await getClient().stellar.sep53.signMessage(message);
       if (proof.status !== "signed") {
-        throw new Error(proof.details ?? "Tu billetera no firmó la solicitud.");
+        throw new Error(proof.details ?? copy.current.session.walletDidNotSign);
       }
 
       const verify = await fetch("/api/auth/verify", {
@@ -88,7 +90,7 @@ export function usePassport() {
 
       if (!verify.ok) {
         const body = await verify.json().catch(() => ({}));
-        throw new Error(body.error ?? "No se pudo verificar el inicio de sesión.");
+        throw new Error(body.error ?? copy.current.session.couldNotVerify);
       }
 
       const body = (await verify.json()) as { address: string };
@@ -97,10 +99,10 @@ export function usePassport() {
     } catch (error) {
       setState({
         step: "error",
-        message: error instanceof Error ? error.message : "Falló el inicio de sesión.",
+        message: error instanceof Error ? error.message : copy.current.session.failed,
       });
     }
-  }, [verified, wallet?.address, getClient, load]);
+  }, [verified, wallet?.address, getClient, load, copy]);
 
   // Pick up an existing server session on mount so a returning patient is not
   // asked to sign again on every reload.
@@ -121,36 +123,41 @@ export function usePassport() {
     };
   }, [load]);
 
-  const save = useCallback(async (passport: Passport) => {
-    setSaving(true);
-    try {
-      const response = await fetch("/api/passport", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(passport),
-      });
+  const save = useCallback(
+    async (passport: Passport) => {
+      setSaving(true);
+      try {
+        const response = await fetch("/api/passport", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(passport),
+        });
 
-      if (!response.ok) {
-        const body = await response.json().catch(() => ({}));
-        throw new Error(body.error ?? "No se pudo guardar tu pasaporte.");
+        if (!response.ok) {
+          const body = await response.json().catch(() => ({}));
+          throw new Error(body.error ?? copy.current.passportForm.couldNotSavePassport);
+        }
+
+        const body = (await response.json()) as {
+          passport: Passport;
+          updatedAt: string | null;
+        };
+        setState({ step: "ready", passport: body.passport, updatedAt: body.updatedAt });
+        return { ok: true as const };
+      } catch (error) {
+        return {
+          ok: false as const,
+          message:
+            error instanceof Error
+              ? error.message
+              : copy.current.passportForm.couldNotSavePassport,
+        };
+      } finally {
+        setSaving(false);
       }
-
-      const body = (await response.json()) as {
-        passport: Passport;
-        updatedAt: string | null;
-      };
-      setState({ step: "ready", passport: body.passport, updatedAt: body.updatedAt });
-      return { ok: true as const };
-    } catch (error) {
-      return {
-        ok: false as const,
-        message:
-          error instanceof Error ? error.message : "No se pudo guardar tu pasaporte.",
-      };
-    } finally {
-      setSaving(false);
-    }
-  }, []);
+    },
+    [copy],
+  );
 
   const signOut = useCallback(async () => {
     await fetch("/api/auth/logout", { method: "POST" });

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { usePollar } from "@pollar/react";
+import { useCopyRef } from "@/lib/i18n";
 
 /**
  * The server session, shared by every role.
@@ -17,6 +18,7 @@ export type SessionState =
   | { step: "error"; message: string };
 
 export function useMedPassSession() {
+  const copy = useCopyRef();
   const { isAuthenticated, verified, wallet, getClient, openLoginModal } = usePollar();
   const [state, setState] = useState<SessionState>({ step: "anonymous" });
 
@@ -69,7 +71,7 @@ export function useMedPassSession() {
     setState({ step: "proving" });
     try {
       const challenge = await fetch("/api/auth/challenge", { cache: "no-store" });
-      if (!challenge.ok) throw new Error("No se pudo iniciar el proceso de acceso.");
+      if (!challenge.ok) throw new Error(copy.current.session.couldNotStart);
       const { message, token } = (await challenge.json()) as {
         message: string;
         token: string;
@@ -77,7 +79,7 @@ export function useMedPassSession() {
 
       const proof = await getClient().stellar.sep53.signMessage(message);
       if (proof.status !== "signed") {
-        throw new Error(proof.details ?? "Tu billetera no firmó la solicitud.");
+        throw new Error(proof.details ?? copy.current.session.walletDidNotSign);
       }
 
       const verify = await fetch("/api/auth/verify", {
@@ -92,7 +94,7 @@ export function useMedPassSession() {
 
       if (!verify.ok) {
         const body = await verify.json().catch(() => ({}));
-        throw new Error(body.error ?? "No se pudo verificar el inicio de sesión.");
+        throw new Error(body.error ?? copy.current.session.couldNotVerify);
       }
 
       const body = (await verify.json()) as { address: string };
@@ -100,10 +102,10 @@ export function useMedPassSession() {
     } catch (error) {
       setState({
         step: "error",
-        message: error instanceof Error ? error.message : "Falló el inicio de sesión.",
+        message: error instanceof Error ? error.message : copy.current.session.failed,
       });
     }
-  }, [verified, wallet?.address, getClient]);
+  }, [verified, wallet?.address, getClient, copy]);
 
   const signOut = useCallback(async () => {
     await fetch("/api/auth/logout", { method: "POST" });

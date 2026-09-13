@@ -30,7 +30,7 @@
     every settled payment to a public Stellar explorer; this pass keeps that intact everywhere it
     reads a payment status.
   - **Potential:** added a provider charge history (`listEncountersForProvider`, `GET
-    /api/encounters/history`, rendered on `/charge`) — past charges with their approved/requested
+/api/encounters/history`, rendered on `/charge`) — past charges with their approved/requested
     field counts, status and a link to the on-chain proof, so a judge sees a tool meant for daily use
     rather than a single staged charge.
   - **Impact:** localized the entire user-facing surface — landing page, provider console, patient
@@ -42,7 +42,22 @@
     this session; `npm run test` and `npm run build` were **not** run here because this session's
     Linux shell shares this Windows checkout's `node_modules`, which only has Windows-native optional
     dependencies installed (a known cross-platform npm limitation, not a code issue) — run `npm run
-    ci` locally before merging.
+ci` locally before merging.
+
+- **Language switch (2026-09-13, `feature/language-toggle`):** every user-facing string now lives in
+  `src/lib/i18n/copy.ts` as one typed object per language, so a missing translation is a build error
+  rather than a blank label. `LanguageProvider` reads the stored preference through
+  `useSyncExternalStore` — the server snapshot is always Spanish, so the hydration render matches the
+  server HTML and there is no flash of the wrong language — and `useLanguage()` falls back to Spanish
+  when no provider is above it, so an unwrapped screen degrades to the language it had before instead
+  of crashing. Spanish remains the default: the product is LATAM-first, the server's own API errors
+  are Spanish, and `tests/e2e/landing.spec.ts` asserts Spanish copy. Callbacks that only read copy on
+  invocation take it through `useCopyRef()`, a stable ref, so no dependency array changed and a
+  language switch never re-runs a fetch. **No payment, consent, authorization or session logic was
+  touched** — only string literals moved. Covered by `src/lib/i18n/copy.test.ts` (same keys in both
+  languages, no blanks, nothing left untranslated) and `src/components/language-toggle.test.tsx`
+  (default, switch, persistence). Verified here with `npx tsc --noEmit` and `npx eslint` (both clean);
+  run `npm run ci` on Windows before merging.
 
 - **Repository:** <https://github.com/BigSm0ker/medpass-latam> is public; `develop` is the default
   collaboration branch and `main` is protected against direct changes, force-push, and deletion.
