@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { PrototypeNotice } from "@/components/prototype-notice";
+import { LanguageToggle } from "@/components/language-toggle";
+import { useCopy, type Copy } from "@/lib/i18n";
 import {
   MedPassPollarProvider,
   explorerUrl,
@@ -11,7 +13,6 @@ import {
 import { SignInGate } from "@/features/session/sign-in-gate";
 import { useMedPassSession } from "@/features/session/use-medpass-session";
 import {
-  FIELD_LABELS,
   PASSPORT_FIELDS,
   type DisclosedPassport,
   type EncounterHistoryItem,
@@ -30,19 +31,22 @@ type Disclosure = {
   payment: { status: string; txHash: string | null } | null;
 };
 
-const STATUS_LABELS: Record<string, string> = {
-  requested: "Esperando al paciente",
-  consented: "Aprobado, falta el pago",
-  rejected: "Rechazado",
-  paid: "Pagado",
-  revoked: "Acceso revocado",
-};
+/**
+ * Status codes arrive from the server as opaque strings. These lookups keep the
+ * dictionary's exhaustive typing while tolerating a status the client has never
+ * heard of — the caller falls back to the raw code rather than rendering blank.
+ */
+function encounterStatusLabel(copy: Copy, status: string): string | undefined {
+  return status in copy.encounterStatus
+    ? copy.encounterStatus[status as keyof Copy["encounterStatus"]]
+    : undefined;
+}
 
-const PAYMENT_STATUS_LABELS: Record<string, string> = {
-  pending: "confirmando en la red",
-  success: "completado",
-  error: "falló",
-};
+function paymentStatusLabel(copy: Copy, status: string): string | undefined {
+  return status in copy.paymentStatus
+    ? copy.paymentStatus[status as keyof Copy["paymentStatus"]]
+    : undefined;
+}
 
 function Card({ children }: { children: React.ReactNode }) {
   return (
@@ -53,10 +57,14 @@ function Card({ children }: { children: React.ReactNode }) {
 }
 
 function ChargeConsole() {
+  const copy = useCopy();
   const session = useMedPassSession();
   const [amount, setAmount] = useState("1");
-  const [reason, setReason] = useState("Consulta general");
-  const [label, setLabel] = useState("Clínica San Martín");
+  // The defaults seed the form once, on mount. They are not re-seeded when the
+  // language changes: overwriting what a clinician has already typed to match a
+  // language toggle would be a worse bug than an untranslated placeholder.
+  const [reason, setReason] = useState(copy.charge.defaultReason);
+  const [label, setLabel] = useState(copy.charge.defaultClinic);
   const [fields, setFields] = useState<PassportField[]>(["blood_type", "allergies"]);
   const [creating, setCreating] = useState(false);
   const [token, setToken] = useState<string | null>(null);
@@ -95,17 +103,17 @@ function ChargeConsole() {
 
       if (!response.ok) {
         const body = await response.json().catch(() => ({}));
-        throw new Error(body.error ?? "No se pudo crear el cobro.");
+        throw new Error(body.error ?? copy.charge.couldNotCreate);
       }
 
       const body = (await response.json()) as { token: string };
       setToken(body.token);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "No se pudo crear el cobro.");
+      setError(err instanceof Error ? err.message : copy.charge.couldNotCreate);
     } finally {
       setCreating(false);
     }
-  }, [amount, reason, label, fields]);
+  }, [amount, reason, label, fields, copy]);
 
   // Poll for the patient's answer while a charge is open. A clinician should see
   // the record appear without being told to refresh.
@@ -164,7 +172,7 @@ function ChargeConsole() {
   if (session.state.step !== "signed_in") {
     return (
       <Card>
-        <h2 className="mb-3 text-xl font-semibold">Inicio de sesión del proveedor</h2>
+        <h2 className="mb-3 text-xl font-semibold">{copy.charge.signInTitle}</h2>
         <SignInGate
           state={session.state}
           pollarSignedIn={session.pollarSignedIn}
@@ -172,7 +180,7 @@ function ChargeConsole() {
           walletAddress={session.walletAddress}
           onOpenLogin={session.openLoginModal}
           onProve={() => void session.proveIdentity()}
-          purpose="Inicia sesión para que los pacientes vean quién pregunta, y para que el pago llegue a tu billetera."
+          purpose={copy.charge.signInPurpose}
         />
       </Card>
     );
@@ -182,19 +190,19 @@ function ChargeConsole() {
     <div className="grid gap-5">
       <Card>
         <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
-          <h2 className="text-xl font-semibold">Nuevo cobro</h2>
+          <h2 className="text-xl font-semibold">{copy.charge.newCharge}</h2>
           <button
             type="button"
             onClick={() => void session.signOut()}
             className="rounded-xl border border-slate-300 px-3 py-1.5 text-sm font-semibold"
           >
-            Cerrar sesión
+            {copy.signOut}
           </button>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="grid gap-1 text-sm">
-            <span className="font-semibold text-slate-700">Clínica o profesional</span>
+            <span className="font-semibold text-slate-700">{copy.charge.clinic}</span>
             <input
               value={label}
               onChange={(event) => setLabel(event.target.value)}
@@ -202,7 +210,7 @@ function ChargeConsole() {
             />
           </label>
           <label className="grid gap-1 text-sm">
-            <span className="font-semibold text-slate-700">Monto (USDC)</span>
+            <span className="font-semibold text-slate-700">{copy.charge.amount}</span>
             <input
               value={amount}
               inputMode="decimal"
@@ -213,7 +221,7 @@ function ChargeConsole() {
         </div>
 
         <label className="mt-4 grid gap-1 text-sm">
-          <span className="font-semibold text-slate-700">Motivo</span>
+          <span className="font-semibold text-slate-700">{copy.charge.reason}</span>
           <input
             value={reason}
             onChange={(event) => setReason(event.target.value)}
@@ -223,12 +231,9 @@ function ChargeConsole() {
 
         <fieldset className="mt-5">
           <legend className="text-sm font-semibold text-slate-700">
-            Información que necesitas del paciente
+            {copy.charge.fieldsLegend}
           </legend>
-          <p className="mt-1 mb-3 text-xs text-slate-500">
-            Pide lo mínimo. El paciente aprueba cada elemento por separado y puede
-            aprobar menos de lo que pediste.
-          </p>
+          <p className="mt-1 mb-3 text-xs text-slate-500">{copy.charge.fieldsHint}</p>
           <div className="flex flex-wrap gap-2">
             {PASSPORT_FIELDS.map((field) => {
               const active = fields.includes(field);
@@ -250,7 +255,7 @@ function ChargeConsole() {
                       : "rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700"
                   }
                 >
-                  {FIELD_LABELS[field]}
+                  {copy.fields[field]}
                 </button>
               );
             })}
@@ -269,30 +274,27 @@ function ChargeConsole() {
           disabled={creating || fields.length === 0}
           className="mt-6 rounded-xl bg-emerald-700 px-5 py-2.5 font-semibold text-white disabled:opacity-40"
         >
-          {creating ? "Creando…" : "Crear cobro y mostrar QR"}
+          {creating ? copy.charge.creating : copy.charge.create}
         </button>
       </Card>
 
       {patientUrl ? (
         <Card>
-          <h2 className="text-xl font-semibold">Muéstrale esto al paciente</h2>
-          <p className="mt-2 text-sm text-slate-600">
-            El código lleva solo una referencia aleatoria. No contiene información
-            médica ni la identidad del paciente.
-          </p>
+          <h2 className="text-xl font-semibold">{copy.charge.showPatientTitle}</h2>
+          <p className="mt-2 text-sm text-slate-600">{copy.charge.showPatientBody}</p>
           <div className="mt-5 grid items-center gap-5 sm:grid-cols-[auto_1fr]">
             <div className="justify-self-center rounded-2xl bg-white p-4 shadow-inner">
               <QRCodeSVG value={patientUrl} size={196} level="M" />
             </div>
             <div className="grid gap-2 text-sm">
-              <p className="font-semibold text-slate-700">O abre este enlace</p>
+              <p className="font-semibold text-slate-700">{copy.charge.orOpenLink}</p>
               <a
                 href={patientUrl}
                 className="font-mono text-xs break-all text-emerald-800 underline"
               >
                 {patientUrl}
               </a>
-              <p className="mt-2 text-slate-500">Esperando la respuesta del paciente…</p>
+              <p className="mt-2 text-slate-500">{copy.charge.waitingPatient}</p>
             </div>
           </div>
         </Card>
@@ -309,45 +311,51 @@ function ChargeConsole() {
       {disclosure ? (
         <Card>
           <div className="flex flex-wrap items-start justify-between gap-3">
-            <h2 className="text-xl font-semibold">Información autorizada</h2>
+            <h2 className="text-xl font-semibold">{copy.charge.authorizedTitle}</h2>
             <span className="rounded-full bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-800">
-              {disclosure.encounter.approvedFields.length} de{" "}
-              {disclosure.encounter.requestedFields.length} aprobados
+              {copy.charge.approvedOf(
+                disclosure.encounter.approvedFields.length,
+                disclosure.encounter.requestedFields.length,
+              )}
             </span>
           </div>
 
           {disclosure.encounter.consentExpiresAt ? (
             <p className="mt-1 text-xs text-slate-500">
-              El acceso expira a las{" "}
-              {new Date(disclosure.encounter.consentExpiresAt).toLocaleTimeString()}
+              {copy.charge.accessExpires(
+                new Date(disclosure.encounter.consentExpiresAt).toLocaleTimeString(),
+              )}
             </p>
           ) : null}
 
           <dl className="mt-4 grid gap-3">
             {disclosure.passport.bloodType !== undefined ? (
-              <Row label="Tipo de sangre" value={disclosure.passport.bloodType} />
+              <Row
+                label={copy.disclosed.bloodType}
+                value={disclosure.passport.bloodType}
+              />
             ) : null}
             {disclosure.passport.allergies ? (
               <Row
-                label="Alergias críticas"
+                label={copy.disclosed.allergies}
                 value={disclosure.passport.allergies.join(", ")}
               />
             ) : null}
             {disclosure.passport.medications ? (
               <Row
-                label="Medicamentos"
+                label={copy.disclosed.medications}
                 value={disclosure.passport.medications.join(", ")}
               />
             ) : null}
             {disclosure.passport.conditions ? (
               <Row
-                label="Condiciones"
+                label={copy.disclosed.conditions}
                 value={disclosure.passport.conditions.join(", ")}
               />
             ) : null}
             {disclosure.passport.emergencyContactName !== undefined ? (
               <Row
-                label="Contacto de emergencia"
+                label={copy.disclosed.emergencyContact}
                 value={`${disclosure.passport.emergencyContactName ?? "—"} · ${
                   disclosure.passport.emergencyContactPhone ?? "—"
                 }`}
@@ -357,12 +365,12 @@ function ChargeConsole() {
 
           <div className="mt-5 border-t border-slate-200 pt-4">
             <p className="text-sm text-slate-600">
-              Pago:{" "}
+              {copy.charge.paymentLabel}{" "}
               <strong>
                 {disclosure.payment
-                  ? (PAYMENT_STATUS_LABELS[disclosure.payment.status] ??
+                  ? (paymentStatusLabel(copy, disclosure.payment.status) ??
                     disclosure.payment.status)
-                  : "esperando al paciente"}
+                  : copy.charge.awaitingPatient}
               </strong>{" "}
               · {disclosure.encounter.amountUsdc} USDC
             </p>
@@ -373,7 +381,7 @@ function ChargeConsole() {
                 target="_blank"
                 rel="noreferrer"
               >
-                Ver la transacción
+                {copy.charge.viewTx}
               </a>
             ) : null}
           </div>
@@ -383,22 +391,17 @@ function ChargeConsole() {
       {historyLoaded ? (
         <Card>
           <div className="mb-1 flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-xl font-semibold">Historial de cobros</h2>
+            <h2 className="text-xl font-semibold">{copy.charge.historyTitle}</h2>
             <span className="text-xs text-slate-500">
               {history.length === 0
-                ? "Todavía no hay cobros"
-                : `${history.length} más recientes`}
+                ? copy.charge.historyEmptyBadge
+                : copy.charge.historyRecent(history.length)}
             </span>
           </div>
-          <p className="mb-4 text-sm text-slate-600">
-            Cada cobro que has creado, con lo que el paciente aprobó y un enlace
-            verificable al pago on-chain cuando existe.
-          </p>
+          <p className="mb-4 text-sm text-slate-600">{copy.charge.historyBody}</p>
 
           {history.length === 0 ? (
-            <p className="text-sm text-slate-500">
-              Crea tu primer cobro arriba para verlo aparecer aquí.
-            </p>
+            <p className="text-sm text-slate-500">{copy.charge.historyEmpty}</p>
           ) : (
             <ul className="grid gap-3">
               {history.map((item) => (
@@ -408,12 +411,14 @@ function ChargeConsole() {
                 >
                   <div>
                     <p className="font-semibold text-slate-800">
-                      {item.reason ?? item.providerLabel ?? "Consulta"}
+                      {item.reason ?? item.providerLabel ?? copy.charge.consultation}
                     </p>
                     <p className="text-xs text-slate-500">
                       {new Date(item.createdAt).toLocaleString()} ·{" "}
-                      {item.approvedFields.length} de {item.requestedFields.length}{" "}
-                      campos aprobados
+                      {copy.charge.fieldsApproved(
+                        item.approvedFields.length,
+                        item.requestedFields.length,
+                      )}
                     </p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2 sm:justify-end">
@@ -421,7 +426,7 @@ function ChargeConsole() {
                       {item.amountUsdc} USDC
                     </span>
                     <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                      {STATUS_LABELS[item.status] ?? item.status}
+                      {encounterStatusLabel(copy, item.status) ?? item.status}
                     </span>
                     {item.payment?.txHash ? (
                       <a
@@ -430,7 +435,7 @@ function ChargeConsole() {
                         rel="noreferrer"
                         className="text-xs font-semibold text-emerald-800 underline"
                       >
-                        Ver transacción
+                        {copy.charge.viewTxShort}
                       </a>
                     ) : null}
                   </div>
@@ -456,6 +461,8 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 export function ChargeScreen() {
+  const copy = useCopy();
+
   return (
     <MedPassPollarProvider>
       <main className="min-h-screen bg-[linear-gradient(135deg,#f8fffc_0%,#eef8ff_100%)] px-5 py-8 sm:px-8">
@@ -463,11 +470,16 @@ export function ChargeScreen() {
           <header className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="text-sm font-semibold tracking-[0.16em] text-emerald-700 uppercase">
-                MedPass LATAM
+                {copy.brand}
               </p>
-              <h1 className="mt-1 text-3xl font-semibold tracking-tight">Proveedor</h1>
+              <h1 className="mt-1 text-3xl font-semibold tracking-tight">
+                {copy.charge.role}
+              </h1>
             </div>
-            <PrototypeNotice />
+            <div className="flex flex-wrap items-center gap-3">
+              <LanguageToggle />
+              <PrototypeNotice />
+            </div>
           </header>
           <ChargeConsole />
         </div>

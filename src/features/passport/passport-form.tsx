@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useCopy } from "@/lib/i18n";
 import { BLOOD_TYPES, type BloodType, type Passport } from "@/schemas/passport";
 
 /**
@@ -21,19 +22,7 @@ function fromLines(value: string): string[] {
     .filter((line) => line.length > 0);
 }
 
-const listFields = [
-  {
-    key: "allergies",
-    label: "Alergias críticas",
-    hint: "Una por línea, ej. Penicilina",
-  },
-  {
-    key: "medications",
-    label: "Medicamentos actuales",
-    hint: "Uno por línea, con la dosis si la conoces",
-  },
-  { key: "conditions", label: "Condiciones relevantes", hint: "Una por línea" },
-] as const;
+const listFieldKeys = ["allergies", "medications", "conditions"] as const;
 
 export function PassportForm({
   passport,
@@ -47,6 +36,23 @@ export function PassportForm({
   // `passport` seeds the draft once. The caller re-mounts this component (via a
   // `key` tied to the saved record) when the stored passport changes, which
   // resets the draft without a synchronous setState inside an effect.
+  const copy = useCopy();
+  const listFields = listFieldKeys.map((key) => ({
+    key,
+    label:
+      key === "allergies"
+        ? copy.passportForm.allergies
+        : key === "medications"
+          ? copy.passportForm.medications
+          : copy.passportForm.conditions,
+    hint:
+      key === "allergies"
+        ? copy.passportForm.allergiesHint
+        : key === "medications"
+          ? copy.passportForm.medicationsHint
+          : copy.passportForm.conditionsHint,
+  }));
+
   const [draft, setDraft] = useState<Passport>(passport);
   const [feedback, setFeedback] = useState<{
     tone: "ok" | "error";
@@ -59,8 +65,8 @@ export function PassportForm({
     const result = await onSave(draft);
     setFeedback(
       result.ok
-        ? { tone: "ok", message: "Pasaporte guardado." }
-        : { tone: "error", message: result.message ?? "No se pudo guardar." },
+        ? { tone: "ok", message: copy.passportForm.saved }
+        : { tone: "error", message: result.message ?? copy.passportForm.couldNotSave },
     );
   }
 
@@ -68,7 +74,7 @@ export function PassportForm({
     <form onSubmit={handleSubmit} className="grid gap-6">
       <div className="grid gap-2 sm:max-w-xs">
         <label htmlFor="bloodType" className="text-sm font-semibold text-slate-700">
-          Tipo de sangre
+          {copy.passportForm.bloodType}
         </label>
         <select
           id="bloodType"
@@ -106,11 +112,11 @@ export function PassportForm({
 
       <fieldset className="grid gap-4 rounded-2xl border border-slate-200 p-4 sm:grid-cols-2">
         <legend className="px-1 text-sm font-semibold text-slate-700">
-          Contacto de emergencia
+          {copy.passportForm.emergencyContact}
         </legend>
         <div className="grid gap-2">
           <label htmlFor="ecName" className="text-sm text-slate-600">
-            Nombre
+            {copy.passportForm.name}
           </label>
           <input
             id="ecName"
@@ -123,7 +129,7 @@ export function PassportForm({
         </div>
         <div className="grid gap-2">
           <label htmlFor="ecPhone" className="text-sm text-slate-600">
-            Teléfono
+            {copy.passportForm.phone}
           </label>
           <input
             id="ecPhone"
@@ -139,7 +145,7 @@ export function PassportForm({
 
       <div className="grid gap-2">
         <label htmlFor="notes" className="text-sm font-semibold text-slate-700">
-          Notas
+          {copy.passportForm.notes}
         </label>
         <textarea
           id="notes"
@@ -158,7 +164,7 @@ export function PassportForm({
           disabled={saving}
           className="rounded-xl bg-slate-950 px-5 py-2.5 font-semibold text-white disabled:opacity-40"
         >
-          {saving ? "Guardando…" : "Guardar pasaporte"}
+          {saving ? copy.passportForm.saving : copy.passportForm.save}
         </button>
         {feedback ? (
           <p
