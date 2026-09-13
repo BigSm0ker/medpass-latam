@@ -177,6 +177,11 @@ function ConsentFlow({ token }: { token: string }) {
       setReceipt({ status: outcome.status, hash: outcome.hash });
       setStage("done");
     } catch (err) {
+      // The patient gets a sentence; the console gets the whole object. A
+      // payment that fails on stage is only debuggable if the real shape of the
+      // failure survives somewhere, and it does not belong on the receipt.
+      console.error("[medpass] payment failed:", err);
+
       const detail =
         err instanceof Error ? err.message : typeof err === "string" ? err : "";
       setError(detail && detail !== "[object Object]" ? detail : "El pago falló.");
