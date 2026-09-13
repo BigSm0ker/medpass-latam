@@ -59,20 +59,21 @@ context.
 
       The only correct Mainnet issuer is Circle's:
 
-      ```
-      GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN
-      ```
+          ```
+          GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN
+          ```
 
-      Verified against Horizon on 2026-09-13: its TOML resolves to
-      `https://circle.com/.well-known/stellar.toml`, with 2,397,661 authorized accounts and
-      ~310M USDC outstanding.
+          Verified against Horizon on 2026-09-13: its TOML resolves to
+          `https://circle.com/.well-known/stellar.toml`, with 2,397,661 authorized accounts and
+          ~310M USDC outstanding.
 
-      **Anyone can issue an asset called `USDC` on Stellar, and several people have.** The same
-      Horizon query returned impostors carrying the identical asset code — one with 426 accounts,
-      ~99 billion units, and a TOML hosted at `wxlmflip.com`. On TestNet a wrong issuer merely
-      fails to work. On Mainnet it is a real transfer of real money to a stranger, and it is
-      irreversible. Confirm the issuer against `circle.com` before enabling, never from memory and
-      never by picking `USDC` out of a list.
+          **Anyone can issue an asset called `USDC` on Stellar, and several people have.** The same
+          Horizon query returned impostors carrying the identical asset code — one with 426 accounts,
+          ~99 billion units, and a TOML hosted at `wxlmflip.com`. On TestNet a wrong issuer merely
+          fails to work. On Mainnet it is a real transfer of real money to a stranger, and it is
+          irreversible. Confirm the issuer against `circle.com` before enabling, never from memory and
+          never by picking `USDC` out of a list.
+
 - [ ] `Starting XLM balance` set to a non-zero value, or the first payment fails on fees
 - [ ] Publishable and secret keys copied for the Mainnet application
 
@@ -93,6 +94,14 @@ export const MEDPASS_STELLAR_NETWORK: StellarNetwork = "mainnet";
       network is pinned.
 - [ ] Mainnet Pollar keys set in the Vercel environment
 - [ ] Redeployed, and the deployed page reports `mainnet`
+
+**The constant and the key move in the same deploy, never apart.** Observed 2026-09-13: the
+constant was merged to `mainnet` while the environment still held the TestNet publishable key.
+Pollar routes by application rather than by what the client declares, so payments kept executing on
+TestNet while the application believed it was on Mainnet. The visible symptom was a receipt linking
+to `stellar.expert/explorer/public/...` for a transaction that only exists on TestNet — "Transaction
+not found" — and the quieter one was `isApprovedSpendNetwork` approving spends against a network the
+SDK was not on. The constant was put back to `testnet` until funding arrives.
 
 Two things the switch also changed, both to stop Mainnet from turning a harmless control into an
 expensive one:
