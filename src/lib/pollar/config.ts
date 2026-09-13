@@ -8,13 +8,20 @@ import { getClientEnv } from "@/lib/env/client";
  * constant here means a Mainnet switch is a reviewable diff in one file rather
  * than an environment variable somebody can flip by accident.
  *
- * Switched to `mainnet` on 2026-09-13, after Pollar granted Mainnet access, so
- * that the deployed application runs where the bounty requires it to run. The
- * publishable key in the environment must be the Mainnet application's, and
- * `NEXT_PUBLIC_*` values are inlined at build time — changing the key without a
- * redeploy changes nothing. Payments from here move real money.
+ * Held at `testnet` until the Mainnet funding wallet holds XLM.
+ *
+ * This constant was briefly flipped to `mainnet` while the environment still
+ * carried the TestNet publishable key, and the two disagreeing was worse than
+ * either alone: Pollar routes by application, so payments kept executing on
+ * TestNet while this application believed it was on Mainnet — building Mainnet
+ * explorer links for TestNet transactions, which then read as "not found", and
+ * approving spends against a network it was not actually on.
+ *
+ * So the rule the cutover has to respect: this constant and
+ * NEXT_PUBLIC_POLLAR_PUBLISHABLE_KEY move in the same deploy, never apart. See
+ * docs/MAINNET_RUNBOOK.md.
  */
-export const MEDPASS_STELLAR_NETWORK: StellarNetwork = "mainnet";
+export const MEDPASS_STELLAR_NETWORK: StellarNetwork = "testnet";
 
 /** Human-readable device label shown in Pollar's active-sessions UI. */
 const DEVICE_LABEL = "MedPass LATAM (prototype)";
